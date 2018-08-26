@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>${status_code}: ${header_text} - University of Illinois</title>
+
+    <style type="text/css">
+        html, body {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        header {
+            background-color: #13294B;
+        }
+
+        #logo {
+            display: block;
+            height: 100px;
+            width: 69px;
+
+            margin-left: auto;
+            margin-right: auto;
+            padding-top: 100px;
+            padding-bottom: 100px;
+        }
+
+        #content {
+            margin: 20px;
+        }
+
+        #main, #footer {
+            max-width: 583px;
+            margin: 0px auto;
+        }
+
+        #footer {
+            margin-top: 3em;
+        }
+
+        #main h1 {
+            margin-top: 20px;
+            margin-bottom: 20px;
+
+            color: #555;
+            font-size: 3em;
+        }
+
+        #main p {
+            color: #777;
+            font-size: 1.5em;
+        }
+
+        #footer p {
+            color: #777;
+            font-size: 1.5em;
+            font-style: italic;
+        }
+
+        @media (min-width: 783px) {
+            #logo {
+                width: 583px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header role="banner">
+        <picture id="logo">
+            <source media="(min-width: 783px)" srcset="/error/wordmark.png, /error/wordmark@2x.png 2x, /error/wordmark@3x.png 3x">
+            <img src="/error/logo.png" srcset="/error/logo.png, /error/logo@2x.png 2x, /error/logo@3x.png 3x" alt="University of Illinois">
+        </pictire>
+    </header>
+
+    <div id="content">
+        <main id="main" role="main">
+            <h1>${status_code}: ${header_text}</h1>
+
+            ${message_text}
+        </main>
+
+        <footer id="footer" role="footer">
+            <p>Contact: <a href="mailto:${contact}">${contact}</a></p>
+        </footer>
+    </div>
+</body>
+</html>
