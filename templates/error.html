@@ -28,16 +28,14 @@
             padding-bottom: 100px;
         }
 
-        #content {
-            margin: 20px;
+        #main, #footer {
+            max-width: 583px;
+            margin: 20px auto;
+            padding-left: 20px;
+            padding-right: 20px;
 
             color: #555;
             font-size: 1.5em;
-        }
-
-        #main, #footer {
-            max-width: 583px;
-            margin: 0px auto;
         }
 
         #footer {
@@ -72,16 +70,14 @@
         </pictire>
     </header>
 
-    <div id="content">
-        <main id="main" role="main">
-            <h1>${status_code}: ${header_text}</h1>
+    <main id="main" role="main">
+        <h1>${status_code}: ${header_text}</h1>
 
-            ${message_text}
-        </main>
+        ${message_text}
+    </main>
 
-        <footer id="footer" role="footer">
-            <p>Contact: <a href="mailto:${contact}">${contact}</a></p>
-        </footer>
-    </div>
+    <footer id="footer" role="footer">
+        <p>Contact: <a href="mailto:${contact}">${contact}</a></p>
+    </footer>
 </body>
 </html>
