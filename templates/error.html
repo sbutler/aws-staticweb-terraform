@@ -3,6 +3,7 @@
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <title>${status_code}: ${header_text} - University of Illinois</title>
@@ -11,6 +12,11 @@
         html, body {
             margin: 0px;
             padding: 0px;
+        }
+
+        /* IE11 fixes */
+        header, main, footer {
+            display: block;
         }
 
         header {
