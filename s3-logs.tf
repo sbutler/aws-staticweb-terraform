@@ -18,7 +18,7 @@ locals {
 resource "aws_s3_bucket" "logs" {
     count = "${length(var.logs_bucket) == 0 ? 1 : 0}"
 
-    bucket = "${var.project}-logs-${random_id.website.hex}"
+    bucket = "${var.project}-log-${random_id.website.hex}"
     acl = "log-delivery-write"
 
     versioning {

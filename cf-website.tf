@@ -1,33 +1,9 @@
 # =========================================================
-# Locals
-# =========================================================
-
-locals {
-    cloudfront_website_oai_path = "${
-        length(var.cloudfront_origin_access_identity_path) == 0
-        ? join("", aws_cloudfront_origin_access_identity.website.*.cloudfront_access_identity_path)
-        : var.cloudfront_origin_access_identity_path
-    }"
-    cloudfront_website_oai_iam_arn = "${
-        length(var.cloudfront_origin_access_identity_path) == 0
-        ? join("", aws_cloudfront_origin_access_identity.website.*.iam_arn)
-        : var.cloudfront_origin_access_identity_iam_arn
-    }"
-}
-
-
-# =========================================================
 # Resources
 # =========================================================
 
-resource "aws_cloudfront_origin_access_identity" "website" {
-    count = "${length(var.cloudfront_origin_access_identity_path) == 0 ? 1 : 0}"
-
-    comment = "Managed identity for ${var.project}-website."
-}
-
 resource "aws_cloudfront_distribution" "website" {
-    count = "${length(var.cloudfront_origin_access_identity_path) == 0 ? 1 : 0}"
+    count = "${var.cloudfront_enabled ? 1 : 0}"
 
     enabled = true
     is_ipv6_enabled = true
@@ -55,17 +31,19 @@ resource "aws_cloudfront_distribution" "website" {
     }
 
     origin {
-        origin_id   = "S3-${var.project}-website"
-        domain_name = "${aws_s3_bucket.website.bucket_regional_domain_name}"
+        origin_id   = "S3Web-${var.project}-web"
+        domain_name = "${aws_s3_bucket.website.website_endpoint}"
 
-        s3_origin_config {
-            origin_access_identity = "${local.cloudfront_website_oai_path}"
+        custom_origin_config {
+            http_port = 80
+            https_port = 443
+            origin_protocol_policy = "http-only"
+            origin_ssl_protocols = [ "TLSv1.2" ]
         }
     }
 
-    default_root_object = "${var.website_index_document}"
     default_cache_behavior {
-        target_origin_id = "S3-${var.project}-website"
+        target_origin_id = "S3Web-${var.project}-web"
         viewer_protocol_policy = "${length(var.cloudfront_certificate_domain) == 0 ? "allow-all" : "redirect-to-https"}"
 
         allowed_methods = [ "GET", "HEAD", "OPTIONS" ]

@@ -4,34 +4,18 @@
 
 data "aws_iam_policy_document" "s3_website" {
     statement {
-        sid = "CloudFront-Read"
+        sid = "PublicRead"
 
         effect = "Allow"
         actions = [
             "s3:GetObject",
         ]
         principals {
-            type = "AWS"
-            identifiers = [ "${local.cloudfront_website_oai_iam_arn}" ]
+            type = "*"
+            identifiers = [ "*" ]
         }
         resources = [
-            "arn:aws:s3:::${var.project}-website-${random_id.website.hex}/*",
-        ]
-    }
-
-    statement {
-        sid = "CloudFront-List"
-
-        effect = "Allow"
-        actions = [
-            "s3:ListBucket",
-        ]
-        principals {
-            type = "AWS"
-            identifiers = [ "${local.cloudfront_website_oai_iam_arn}" ]
-        }
-        resources = [
-            "arn:aws:s3:::${var.project}-website-${random_id.website.hex}",
+            "arn:aws:s3:::${var.project}-web-${random_id.website.hex}/*",
         ]
     }
 }
@@ -71,15 +55,19 @@ locals {
 # =========================================================
 
 resource "random_id" "website" {
-    byte_length = 8
+    byte_length = 16
 }
 
 resource "aws_s3_bucket" "website" {
-    bucket = "${var.project}-website-${random_id.website.hex}"
+    bucket = "${var.project}-web-${random_id.website.hex}"
 
     policy = "${data.aws_iam_policy_document.s3_website.json}"
     versioning {
         enabled = true
+    }
+
+    website {
+        index_document = "${var.website_index_document}"
     }
 
     logging {

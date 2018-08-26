@@ -90,6 +90,12 @@ variable "website_error_contact" {
 # CloudFront (managed)
 # =========================================================
 
+variable "cloudfront_enabled" {
+    type = "string"
+    description = "Enable managed CloudFront."
+    default = "true"
+}
+
 variable "cloudfront_domains" {
     type = "list"
     description = "List of custom domains for CloudFront to answer to."
@@ -124,23 +130,6 @@ variable "cloudfront_logs_prefix" {
     type = "string"
     description = "Prefix to use for object keys for CloudFront logs (must end with a '/' or be empty)."
     default = "cloudfront/"
-}
-
-
-# =========================================================
-# CloudFront (provided)
-# =========================================================
-
-variable "cloudfront_origin_access_identity_path" {
-    type = "string"
-    description = "CloudFront path for the provided origin access identity (must also specify cloudfront_origin_access_identity_iam_arn)."
-    default = ""
-}
-
-variable "cloudfront_origin_access_identity_iam_arn" {
-    type = "string"
-    description = "IAM ARN for the origin access identity (must also specify cloudfront_origin_access_identity_path)."
-    default = ""
 }
 
 
