@@ -17,8 +17,8 @@ resource "aws_cloudfront_distribution" "website" {
 
     aliases = [ "${var.cloudfront_domains}" ]
     viewer_certificate {
-        acm_certificate_arn = "${length(var.cloudfront_certificate_domain) == 0 ? "" : join("", data.aws_acm_certificate.website.*.arn)}"
-        cloudfront_default_certificate = "${length(var.cloudfront_certificate_domain) == 0 ? 1 : 0}"
+        acm_certificate_arn = "${var.cloudfront_certificate_arn}"
+        cloudfront_default_certificate = "${length(var.cloudfront_certificate_arn) == 0 ? 1 : 0}"
 
         minimum_protocol_version = "TLSv1"
         ssl_support_method = "sni-only"
@@ -44,7 +44,7 @@ resource "aws_cloudfront_distribution" "website" {
 
     default_cache_behavior {
         target_origin_id = "S3Web-${var.project}-web"
-        viewer_protocol_policy = "${length(var.cloudfront_certificate_domain) == 0 ? "allow-all" : "redirect-to-https"}"
+        viewer_protocol_policy = "${length(var.cloudfront_certificate_arn) == 0 ? "allow-all" : "redirect-to-https"}"
 
         allowed_methods = [ "GET", "HEAD", "OPTIONS" ]
         cached_methods = [ "GET", "HEAD" ]

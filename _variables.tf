@@ -102,9 +102,9 @@ variable "cloudfront_domains" {
     default = []
 }
 
-variable "cloudfront_certificate_domain" {
+variable "cloudfront_certificate_arn" {
     type = "string"
-    description = "Domain name of the ACM certificate to use for CloudFront."
+    description = "ARN of the ACM certificate to use for CloudFront."
     default = ""
 }
 
