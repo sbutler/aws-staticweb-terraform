@@ -86,6 +86,7 @@ variable "website_error_contact" {
     default = "consult@illinois.edu"
 }
 
+
 # =========================================================
 # CloudFront (managed)
 # =========================================================
@@ -134,7 +135,7 @@ variable "cloudfront_logs_prefix" {
 
 
 # =========================================================
-# CloudFront (provided)
+# Logging
 # =========================================================
 
 variable "logs_bucket" {
