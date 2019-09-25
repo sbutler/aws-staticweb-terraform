@@ -57,6 +57,11 @@ resource "aws_cloudfront_distribution" "website" {
                 forward = "none"
             }
 
+            headers = [
+                "Access-Control-Request-Headers",
+                "Access-Control-Request-Method",
+                "Origin",
+            ]
             query_string = false
         }
 

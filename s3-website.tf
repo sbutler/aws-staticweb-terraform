@@ -70,6 +70,11 @@ resource "aws_s3_bucket" "website" {
         index_document = "${var.website_index_document}"
     }
 
+    cors_rule {
+        allowed_methods = [ "GET" ]
+        allowed_origins = [ "*" ]
+    }
+
     logging {
         target_bucket = "${local.logs_bucket}"
         target_prefix = "${var.website_logs_prefix}"
