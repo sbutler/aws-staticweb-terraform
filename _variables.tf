@@ -3,30 +3,36 @@
 # =========================================================
 
 variable "service" {
-    type = "string"
+    type        = string
     description = "Service name (match Service Catalog where possible)."
 }
 
 variable "contact" {
-    type = "string"
+    type        = string
     description = "Service email address."
 }
 
 variable "data_classification" {
-    type = "string"
+    type        = string
     description = "Public, Internal, Sensitive, or HighRisk (choose the most rigorous standard that applies)."
-    default = "Public"
+    default     = "Public"
 }
 
 variable "environment" {
-    type = "string"
+    type        = string
     description = "Production, Test, Development, Green, Blue, etc."
-    default = ""
+    default     = ""
 }
 
 variable "project" {
-    type = "string"
+    type        = string
     description = "Short, simple (letters, numbers, hyphen, underscore) project name that will be used as a prefix for resource names."
+}
+
+variable "name_prefix" {
+    type        = string
+    description = "Short, simple (letters, numbers, hyphen, underscore) project name that will be used as a prefix for resource names. Defaults to '$project-'."
+    default     = null
 }
 
 
@@ -35,55 +41,33 @@ variable "project" {
 # =========================================================
 
 variable "website_index_document" {
-    type = "string"
+    type        = string
     description = "Name of the file to use for indexes of a folder."
-    default = "index.html"
+    default     = "index.html"
 }
 
 variable "website_logs_prefix" {
-    type = "string"
+    type        = string
     description = "Prefix to use for object keys for S3 logs (must end with a '/' or be empty)."
-    default = "s3/"
+    default     = "s3/"
 }
 
 variable "website_error_headers" {
-    type = "map"
+    type        = map(string)
     description = "Map of HTTP Status Codes to error page header strings."
-    default = {
-        "400" = "Bad Request"
-        "403" = "Forbidden"
-        "404" = "Not Found"
-        "405" = "Method Not Allowed"
-        "414" = "Request-URI Too Large"
-        "500" = "Internal Server Error"
-        "501" = "Not Implemented"
-        "502" = "Bad Gateway"
-        "503" = "Service Unavailable"
-        "504" = "Gateway Timeout"
-    }
+    default     = {}
 }
 
 variable "website_error_messages" {
-    type = "map"
+    type        = map(string)
     description = "Map of HTTP Status Codes to error page message strings."
-    default = {
-        "400" = "<p>Your browser (or proxy) sent a request that this server could not understand.</p>"
-        "403" = "<p>You don't have permission to access the requested object. It is either read-protected or not readable by the server.</p>"
-        "404" = "<p>The requested URL was not found on this server.</p>"
-        "405" = "<p>The HTTP method is not allowed for the requested URL.</p>"
-        "414" = "<p>The length of the requested URL exceeds the capacity limit for this server. The request cannot be processed.</p>"
-        "500" = "<p>The server encountered an internal error and was unable to complete your request.</p>"
-        "501" = "<p>The server does not support the action requested by the browser.</p>"
-        "502" = "<p>The proxy server received an invalid response from an upstream server.</p>"
-        "503" = "<p>The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.</p>"
-        "504" = "<p>The proxy servier timed out waiting for a response from an upstream server.</p>"
-    }
+    default     = {}
 }
 
 variable "website_error_contact" {
-    type = "string"
+    type        = string
     description = "Email address to list as the contact on error pages."
-    default = "consult@illinois.edu"
+    default     = "consult@illinois.edu"
 }
 
 
@@ -92,45 +76,45 @@ variable "website_error_contact" {
 # =========================================================
 
 variable "cloudfront_enabled" {
-    type = "string"
+    type        = bool
     description = "Enable managed CloudFront."
-    default = "true"
+    default     = true
 }
 
 variable "cloudfront_domains" {
-    type = "list"
+    type        = list(string)
     description = "List of custom domains for CloudFront to answer to."
-    default = []
+    default     = null
 }
 
 variable "cloudfront_certificate_arn" {
-    type = "string"
+    type        = string
     description = "ARN of the ACM certificate to use for CloudFront."
-    default = ""
+    default     = null
 }
 
 variable "cloudfront_min_ttl" {
-    type = "string"
+    type        = number
     description = "Minimum TTL for cached objects."
-    default = "0"
+    default     = 0
 }
 
 variable "cloudfront_max_ttl" {
-    type = "string"
+    type        = number
     description = "Maximum TTL for cached objects."
-    default = "31536000"
+    default     = 31536000
 }
 
 variable "cloudfront_default_ttl" {
-    type = "string"
+    type        = number
     description = "Default TTL for cached objects if the origin does not specify a lifetime."
-    default = "0"
+    default     = 0
 }
 
 variable "cloudfront_logs_prefix" {
-    type = "string"
+    type        = string
     description = "Prefix to use for object keys for CloudFront logs (must end with a '/' or be empty)."
-    default = "cloudfront/"
+    default     = "cloudfront/"
 }
 
 
@@ -139,13 +123,13 @@ variable "cloudfront_logs_prefix" {
 # =========================================================
 
 variable "logs_bucket" {
-    type = "string"
+    type        = string
     description = "Name of the bucket for logging. If not provided then a new bucket will be created."
-    default = ""
+    default     = null
 }
 
 variable "logs_expire" {
-    type = "string"
+    type        = number
     description = "How long before logs are expired (in days). This is only used if the logs_bucket variable is not specified."
-    default = "30"
+    default     = 30
 }
