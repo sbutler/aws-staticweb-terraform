@@ -6,6 +6,10 @@ output "website_bucket" {
     value = aws_s3_bucket.website.bucket
 }
 
+output "website_bucket_arn" {
+    value = aws_s3_bucket.website.arn
+}
+
 output "website_bucket_regional_domain_name" {
     value = aws_s3_bucket.website.bucket_regional_domain_name
 }
