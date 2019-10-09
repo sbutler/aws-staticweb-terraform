@@ -70,6 +70,11 @@ variable "website_error_contact" {
     default     = "consult@illinois.edu"
 }
 
+variable "website_policy_json" {
+    type        = string
+    description = "S3 bucket policy document that can override parts of the default one."
+    default     = null
+}
 
 # =========================================================
 # CloudFront (managed)

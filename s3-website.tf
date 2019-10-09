@@ -3,6 +3,8 @@
 # =========================================================
 
 data "aws_iam_policy_document" "s3_website" {
+    override_json = local.website_policy_json
+
     statement {
         sid = "PublicRead"
 
@@ -36,6 +38,15 @@ data "template_file" "website_error_page" {
 # =========================================================
 
 locals {
+    website_policy_json = var.website_policy_json == null ? null : jsonencode({
+        Version = "2012-10-17"
+        Statement = [for s in jsondecode(var.website_policy_json).Statement :
+            merge(s, {
+                Resource = replace(s.Resource, "{arn}", "arn:aws:s3:::${local.name_prefix}web-${random_id.website.hex}")
+            })
+        ]
+    })
+
     website_error_pngs = [
         "logo.png",
         "logo@2x.png",
