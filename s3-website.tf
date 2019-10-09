@@ -3,7 +3,7 @@
 # =========================================================
 
 data "aws_iam_policy_document" "s3_website" {
-    override_json = local.website_policy_json
+    override_json = var.website_policy_json == null ? null : join("", data.template_file.website_policy_json[*].rendered)
 
     statement {
         sid = "PublicRead"
@@ -32,21 +32,25 @@ data "template_file" "website_error_page" {
     }
 }
 
+# Allow the provided policy JSON to include template variables, such as the bucket
+# name and ARN. This does mean jumping through some hoops later when we want to use
+# it as an override_json.
+data "template_file" "website_policy_json" {
+    count = var.website_policy_json == null ? 0 : 1
+
+    template = var.website_policy_json
+    vars = {
+        bucket     = "${local.name_prefix}web-${random_id.website.hex}"
+        bucket_arn = "arn:aws:s3:::${local.name_prefix}web-${random_id.website.hex}"
+    }
+}
+
 
 # =========================================================
 # Locals
 # =========================================================
 
 locals {
-    website_policy_json = var.website_policy_json == null ? null : jsonencode({
-        Version = "2012-10-17"
-        Statement = [for s in jsondecode(var.website_policy_json).Statement :
-            merge(s, {
-                Resource = replace(s.Resource, "{arn}", "arn:aws:s3:::${local.name_prefix}web-${random_id.website.hex}")
-            })
-        ]
-    })
-
     website_error_pngs = [
         "logo.png",
         "logo@2x.png",
