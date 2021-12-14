@@ -6,7 +6,7 @@ designed to be used as a module or standalone configuration.
 
 Basic requirements for deploying this configuration:
 
-* terraform >= 0.11.8
+* terraform >= 1.1.0
 
 ## Security
 
@@ -47,25 +47,25 @@ required.
 
 These variables are standard ones required by Technology Services.
 
-| Variable                | Default  | Example                | Description |
-| ----------------------- | -------- | ---------------------- | ----------- |
-| **service**             |          | "Example"              | Service Catalog name for the service this website is a part of. |
-| **contact**             |          | "example@illinois.edu" | Internal contact email for who to notify for problems with resources. |
-| data_classification     | "Public" | "Internal"             | Illini Secure data classification for data stored on the resources. Since no attempt is made to restrict the web bucket you should not use anything other than "Public" here. |
-| environment             | ""       | "Dev"                  | Production, Test, Development, etc. |
-| **project**             |          | "example"              | Short, simple (letters, numbers, hyphen, underscore) project name that will be used as the prefix for all named resources. |
+| Variable                | Default    | Example                  | Description |
+| ----------------------- | ---------- | ------------------------ | ----------- |
+| **service**             |            | `"Example"`              | Service Catalog name for the service this website is a part of. |
+| **contact**             |            | `"example@illinois.edu"` | Internal contact email for who to notify for problems with resources. |
+| data_classification     | `"Public"` | `"Internal"`             | Illini Secure data classification for data stored on the resources. Since no attempt is made to restrict the web bucket you should not use anything other than "Public" here. |
+| environment             | `""`       | `"Dev"`                  | Production, Test, Development, etc. |
+| **project**             |            | `"example"               | Short, simple (letters, numbers, hyphen, underscore) project name that will be used as the prefix for all named resources. |
 
 ### Website
 
 These variables change how the website behaves.
 
-| Variable                | Default                | Example                | Description |
-| ----------------------- | ---------------------- | ---------------------- | ----------- |
-| website_index_document  | "index.html"           | "homepage.html"        | Filename to use when a URL requests a directory. |
-| website_logs_prefix     | "s3/"                  | "example/s3/"          | Prefix to use when storing S3 logs in a logging bucket **(must end in a "/")**. You can use the same logging bucket for multiple services by changing this prefix. |
-| website_error_headers   | (varies)               |                        | This is a map of HTTP Status Code to text to display in the header element of the error page. You can override individual header texts by changing this variable. |
-| website_error_messages  | (varies)               |                        | This is a map of HTTP Status Code to text to display in the message element of the error page. Full HTML is allowed here. You can override individual message texts by changing this variable. |
-| website_error_contact   | "consult@illinois.edu" | "example@illinois.edu" | Email address to list as the contact on error pages. |
+| Variable                | Default                  | Example                  | Description |
+| ----------------------- | ------------------------ | ------------------------ | ----------- |
+| website_index_document  | `"index.html"`           | `"homepage.html"`        | Filename to use when a URL requests a directory. |
+| website_logs_prefix     | `"s3/"`                  | `"example/s3/"`          | Prefix to use when storing S3 logs in a logging bucket **(must end in a "/")**. You can use the same logging bucket for multiple services by changing this prefix. |
+| website_error_headers   | (varies)                 |                          | This is a map of HTTP Status Code to text to display in the header element of the error page. You can override individual header texts by changing this variable. |
+| website_error_messages  | (varies)                 |                          | This is a map of HTTP Status Code to text to display in the message element of the error page. Full HTML is allowed here. You can override individual message texts by changing this variable. |
+| website_error_contact   | `"consult@illinois.edu"` | `"example@illinois.edu"` | Email address to list as the contact on error pages. |
 
 ### CloudFront
 
@@ -78,15 +78,15 @@ distribution you'd like to use.
 CloudFront is required to provide HTTPS, HTTP/2, and custom domain
 support for your website.
 
-| Variable                   | Default                | Example                  | Description |
-| -------------------------- | ---------------------- | ------------------------ | ----------- |
-| cloudfront_enabled         | "true"                 | "false"                  | Enable the managed CloudFront. |
-| cloudfront_domains         | []                     | ["example.illinois.edu"] | List of custom domains for your website. Any custom domain will have to be requested using the standard process and then specified here. |
-| cloudfront_certificate_arn | ""                     | (ACM cert arn)           | ARN of a certificate requested or imported into AWS Certificate Manager (ACM). This certificate must be in N. Virginia (us-east-1) for CloudFront to use it. If not specified then your website will not be available on HTTPS or HTTP/2. |
-| cloudfront_min_ttl         | "0"                    | "3600"                   | Minimum allowed TTL for cached objects. |
-| cloudfront_max_ttl         | "31536000"             | "86400"                  | Maximum allowed TTL for cached objects. |
-| cloudfront_default_ttl     | "0"                    | "600"                    | Default amount of time to cache objects when otherwise not specified by the origin. You can change this value for specific files when uploading to the web S3 bucket by setting their Cache-Control metadata. |
-| cloudfront_logs_prefix     | "cloudfront/"          | "example/cloudfront/"    | Prefix to use when storing CloudFront logs in a logging bucket **(must end in a "/")**. You can use the same logging bucket for multiple services by changing this prefix. |
+| Variable                   | Default       | Example                    | Description |
+| -------------------------- | ------------- | -------------------------- | ----------- |
+| cloudfront_enabled         | `true`        | `false`                    | Enable the managed CloudFront. |
+| cloudfront_domains         | `[]`          | `["example.illinois.edu"]` | List of custom domains for your website. Any custom domain will have to be requested using the standard process and then specified here. |
+| cloudfront_certificate_arn | `null`        | (ACM cert arn)             | ARN of a certificate requested or imported into AWS Certificate Manager (ACM). This certificate must be in N. Virginia (us-east-1) for CloudFront to use it. If not specified then your website will not be available on HTTPS or HTTP/2. |
+| cloudfront_min_ttl         | `0`           | `3600`                     | Minimum allowed TTL for cached objects. |
+| cloudfront_max_ttl         | `31536000`    | `86400`                    | Maximum allowed TTL for cached objects. |
+| cloudfront_default_ttl     | `0`           | `600`                      | Default amount of time to cache objects when otherwise not specified by the origin. You can change this value for specific files when uploading to the web S3 bucket by setting their Cache-Control metadata. |
+| cloudfront_logs_prefix     | `cloudfront/` | `example/cloudfront/`      | Prefix to use when storing CloudFront logs in a logging bucket **(must end in a "/")**. You can use the same logging bucket for multiple services by changing this prefix. |
 
 ### Logging
 
@@ -94,16 +94,16 @@ These variables change how logs are stored. You can choose to log to
 an existing bucket or let the terraform create a logging bucket for
 you. If the terraform creates a bucket then it is private.
 
-| Variable                | Default                | Example                  | Description |
-| ----------------------- | ---------------------- | ------------------------ | ----------- |
-| logs_bucket             | ""                     | "example-logs"           | Name of the bucket to store logs in. If not provided then a new, private bucket will be created. |
-| lgos_expire             | "30"                   | "90"                     | Number of days to wait before deleting log files. This is only used if `logs_bucket` is not specified. |
+| Variable                | Default | Example          | Description |
+| ----------------------- | ------- | ---------------- | ----------- |
+| logs_bucket             | `null`  | `"example-logs"` | Name of the bucket to store logs in. If not provided then a new, private bucket will be created. |
+| lgos_expire             | `30`    | `90`             | Number of days to wait before deleting log files. This is only used if `logs_bucket` is not specified. |
 
 ## Outputs
 
 The terraform configuration outputs several values for you to use.
 
-| Value | Description |
+| Value             | Description |
 | ----------------- | ----------- |
 | cloudfront_domain | Domain name of your static website. You can create a CNAME to this in DNS to use custom domains (if configured in `cloudfront_domains`). If you need to create A or AAAA records then you will have to use AWS Route53 with aliases to this domain. |
 | website_bucket    | Name of the S3 bucket for your website content. |
