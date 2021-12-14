@@ -31,11 +31,7 @@ resource "aws_s3_bucket" "logs" {
     }
 
     tags = {
-        Service            = var.service
-        Contact            = var.contact
         DataClassification = var.data_classification == "Public" ? "Internal" : var.data_classification
-        Environment        = var.environment
-        Project            = var.project
     }
 
     lifecycle {

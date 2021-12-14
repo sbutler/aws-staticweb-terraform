@@ -11,6 +11,7 @@ terraform {
         }
     }
 
+    /*
     backend "s3" {
         bucket         = "CHANGEME"
         key            = "CHANGEME"
@@ -19,9 +20,20 @@ terraform {
         encrypt = true
         region = "us-east-2"
     }
+    */
 }
 
 
 provider "aws" {
     region = "us-east-2"
+
+    default_tags {
+        tags = {
+            Service     = var.service
+            Contact     = var.contact
+            Environment = var.environment
+
+            Project = var.project
+        }
+    }
 }

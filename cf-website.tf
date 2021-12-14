@@ -83,11 +83,4 @@ resource "aws_cloudfront_distribution" "website" {
             error_caching_min_ttl = custom_error_response.value.min_ttl
         }
     }
-
-    tags = {
-        Service     = var.service
-        Contact     = var.contact
-        Environment = var.environment
-        Project     = var.project
-    }
 }

@@ -139,11 +139,7 @@ resource "aws_s3_bucket" "website" {
     }
 
     tags = {
-        Service            = var.service
-        Contact            = var.contact
         DataClassification = var.data_classification
-        Environment        = var.environment
-        Project            = var.project
     }
 
     lifecycle {
