@@ -1,6 +1,19 @@
 # =========================================================
+# Locals
+# =========================================================
+
+locals {
+    cf_useragent = "Amazon CloudFront/${nonsensitive(random_password.cf_useragent_password.result)}"
+}
+
+# =========================================================
 # Resources
 # =========================================================
+
+resource "random_password" "cf_useragent_password" {
+    length  = 32
+    special = false
+}
 
 resource "aws_cloudfront_distribution" "website" {
     count = var.cloudfront_enabled ? 1 : 0
@@ -33,6 +46,11 @@ resource "aws_cloudfront_distribution" "website" {
     origin {
         origin_id   = "S3Web-${local.name_prefix}web"
         domain_name = aws_s3_bucket.website.website_endpoint
+
+        custom_header {
+            name  = "User-Agent"
+            value = local.cf_useragent
+        }
 
         custom_origin_config {
             http_port              = 80

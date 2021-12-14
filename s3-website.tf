@@ -6,17 +6,28 @@ data "aws_iam_policy_document" "s3_website" {
     override_json = var.website_policy_json == null ? null : join("", data.template_file.website_policy_json[*].rendered)
 
     statement {
-        sid = "PublicRead"
-
+        sid    = "CloudFrontRead"
         effect = "Allow"
+
         actions = [ "s3:GetObject" ]
+
+        resources = [
+            "arn:aws:s3:::${local.name_prefix}web-${random_id.website.hex}/*",
+        ]
+
         principals {
             type        = "*"
             identifiers = [ "*" ]
         }
-        resources = [
-            "arn:aws:s3:::${local.name_prefix}web-${random_id.website.hex}/*",
-        ]
+
+        dynamic "condition" {
+            for_each = var.cloudfront_enabled ? [ local.cf_useragent ] : []
+            content {
+                test     = "StringEquals"
+                variable = "aws:UserAgent"
+                values   = [ condition.value ]
+            }
+        }
     }
 }
 
