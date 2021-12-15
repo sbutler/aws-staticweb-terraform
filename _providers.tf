@@ -9,6 +9,10 @@ terraform {
             source  = "hashicorp/random"
             version = "~> 3.1"
         }
+        time = {
+            source  = "hashicorp/time"
+            version = "~> 0.7.2"
+        }
     }
 
     /*
@@ -26,6 +30,21 @@ terraform {
 
 provider "aws" {
     region = "us-east-2"
+
+    default_tags {
+        tags = {
+            Service     = var.service
+            Contact     = var.contact
+            Environment = var.environment
+
+            Project = var.project
+        }
+    }
+}
+
+provider "aws" {
+    alias  = "failover"
+    region = "us-west-2"
 
     default_tags {
         tags = {

@@ -12,7 +12,7 @@ data "aws_iam_policy_document" "s3_website" {
         actions = [ "s3:GetObject" ]
 
         resources = [
-            "arn:aws:s3:::${local.name_prefix}web-${random_id.website.hex}/*",
+            "arn:${local.partition}:s3:::${local.website_bucket}/*",
         ]
 
         principals {
@@ -112,6 +112,8 @@ locals {
             }
         )
     } }
+
+    website_bucket = "${local.name_prefix}web-${random_id.website.hex}"
 }
 
 # =========================================================
@@ -123,7 +125,7 @@ resource "random_id" "website" {
 }
 
 resource "aws_s3_bucket" "website" {
-    bucket = "${local.name_prefix}web-${random_id.website.hex}"
+    bucket = local.website_bucket
 
     policy = data.aws_iam_policy_document.s3_website.json
     versioning {
@@ -154,11 +156,23 @@ resource "aws_s3_bucket" "website" {
     }
 
     lifecycle {
-        prevent_destroy = true
+        ignore_changes = [
+            replication_configuration
+        ]
+
+        #prevent_destroy = true
     }
 }
 
+# =========================================================
+# Resources: Objects
+# =========================================================
+
 resource "aws_s3_bucket_object" "website_favicon" {
+    depends_on = [
+        aws_s3_bucket_replication_configuration.website_replication,
+    ]
+
     bucket = aws_s3_bucket.website.bucket
     key    = "favicon.ico"
 
@@ -170,7 +184,10 @@ resource "aws_s3_bucket_object" "website_favicon" {
 }
 
 resource "aws_s3_bucket_object" "website_error_png" {
-    for_each = toset(local.website_error_pngs)
+    for_each   = toset(local.website_error_pngs)
+    depends_on = [
+        aws_s3_bucket_replication_configuration.website_replication,
+    ]
 
     bucket = aws_s3_bucket.website.bucket
     key    = "error/${each.key}"
@@ -183,7 +200,10 @@ resource "aws_s3_bucket_object" "website_error_png" {
 }
 
 resource "aws_s3_bucket_object" "website_error_page" {
-    for_each = local.website_error_codes
+    for_each   = local.website_error_codes
+    depends_on = [
+        aws_s3_bucket_replication_configuration.website_replication,
+    ]
 
     bucket = aws_s3_bucket.website.bucket
     key    = "error/${each.key}.html"

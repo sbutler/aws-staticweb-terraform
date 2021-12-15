@@ -4,6 +4,10 @@ This is a terraform configuration to help you with best practices when
 deploying a static website in AWS using S3 and CloudFront. It was
 designed to be used as a module or standalone configuration.
 
+If you enable CloudFront then this terraform also deploys a failover bucket
+in a different region, with content automatically copied from the primary
+bucket. This gives you cheap failover capabilities in case of a region outage.
+
 Basic requirements for deploying this configuration:
 
 * terraform >= 1.1.0

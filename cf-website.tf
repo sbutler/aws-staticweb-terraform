@@ -60,8 +60,41 @@ resource "aws_cloudfront_distribution" "website" {
         }
     }
 
+    origin {
+        origin_id   = "S3Web-${var.project}-web-failover"
+        domain_name = aws_s3_bucket.website_failover[0].website_endpoint
+
+        custom_header {
+            name  = "User-Agent"
+            value = local.cf_useragent
+        }
+
+        custom_origin_config {
+            http_port              = 80
+            https_port             = 443
+            origin_protocol_policy = "http-only"
+            origin_ssl_protocols   = [ "TLSv1.2" ]
+        }
+    }
+
+    origin_group {
+        origin_id = "S3Web-${var.project}"
+
+        failover_criteria {
+            status_codes = [ 500, 502, 503, 504 ]
+        }
+
+        member {
+            origin_id = "S3Web-${var.project}-web"
+        }
+
+        member {
+            origin_id = "S3Web-${var.project}-web-failover"
+        }
+    }
+
     default_cache_behavior {
-        target_origin_id       = "S3Web-${local.name_prefix}web"
+        target_origin_id       = "S3Web-${var.project}"
         viewer_protocol_policy = var.cloudfront_certificate_arn == null ? "allow-all" : "redirect-to-https"
 
         allowed_methods = [ "GET", "HEAD", "OPTIONS" ]
