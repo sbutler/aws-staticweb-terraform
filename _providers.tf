@@ -44,7 +44,7 @@ provider "aws" {
 
 provider "aws" {
     alias  = "failover"
-    region = "us-west-2"
+    region = "us-east-1"
 
     default_tags {
         tags = {
