@@ -41,6 +41,20 @@ or request one from AWS for free:
 - For [AWS issued certificates](https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-request-public.html) you will need to follow either "[Use DNS to Validate Domain Ownership](https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-validate-dns.html)"
   or "[Use Email to Validate Domain Ownership](https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-validate-email.html)"
 
+## Non-Current Object Versions
+
+When you upload a new file (object) the existing file is kept as a "non-current
+version" in the bucket. You can use the `website_noncurrent_expire` variable
+to control how long these old versions are retained:
+
+- `0`: old versions are not removed.
+- `> 0`: old versions are retained for this many days.
+
+Additionally, you can tag files with `NonCurrentExpire` and a value of `1`,
+`7`, `30`, `90`, or `365` to keep the old version for a specific time.
+**Warning: you cannot use the tags to keep an old version longer than what
+you specify for `website_noncurrent_expire`.**
+
 ## Variables
 
 This configuration has several variables you can use to customize how
@@ -63,13 +77,14 @@ These variables are standard ones required by Technology Services.
 
 These variables change how the website behaves.
 
-| Variable                | Default                  | Example                  | Description |
-| ----------------------- | ------------------------ | ------------------------ | ----------- |
-| website_index_document  | `"index.html"`           | `"homepage.html"`        | Filename to use when a URL requests a directory. |
-| website_logs_prefix     | `"s3/"`                  | `"example/s3/"`          | Prefix to use when storing S3 logs in a logging bucket **(must end in a "/")**. You can use the same logging bucket for multiple services by changing this prefix. |
-| website_error_headers   | (varies)                 |                          | This is a map of HTTP Status Code to text to display in the header element of the error page. You can override individual header texts by changing this variable. |
-| website_error_messages  | (varies)                 |                          | This is a map of HTTP Status Code to text to display in the message element of the error page. Full HTML is allowed here. You can override individual message texts by changing this variable. |
-| website_error_contact   | `"consult@illinois.edu"` | `"example@illinois.edu"` | Email address to list as the contact on error pages. |
+| Variable                  | Default                  | Example                  | Description |
+| ------------------------- | ------------------------ | ------------------------ | ----------- |
+| website_index_document    | `"index.html"`           | `"homepage.html"`        | Filename to use when a URL requests a directory. |
+| website_logs_prefix       | `"s3/"`                  | `"example/s3/"`          | Prefix to use when storing S3 logs in a logging bucket **(must end in a "/")**. You can use the same logging bucket for multiple services by changing this prefix. |
+| website_error_headers     | (varies)                 |                          | This is a map of HTTP Status Code to text to display in the header element of the error page. You can override individual header texts by changing this variable. |
+| website_error_messages    | (varies)                 |                          | This is a map of HTTP Status Code to text to display in the message element of the error page. Full HTML is allowed here. You can override individual message texts by changing this variable. |
+| website_error_contact     | `"consult@illinois.edu"` | `"example@illinois.edu"` | Email address to list as the contact on error pages. |
+| website_noncurrent_expire | `0`                      | `7`                      | Number of days before expiring non-current versions of objects. Set to 0 to not expire. |
 
 ### CloudFront
 

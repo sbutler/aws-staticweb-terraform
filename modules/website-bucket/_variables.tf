@@ -29,6 +29,12 @@ variable "name" {
     description = "Name of the S3 bucket."
 }
 
+variable "noncurrent_expire" {
+    type        = number
+    description = "Number of days before expiring non-current versions of objects. Set to 0 to not expire."
+    default     = 0
+}
+
 # =========================================================
 # Logs
 # =========================================================

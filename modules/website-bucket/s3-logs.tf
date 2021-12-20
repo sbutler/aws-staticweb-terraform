@@ -42,11 +42,36 @@ resource "aws_s3_bucket" "logs" {
     }
 
     lifecycle_rule {
-        id      = "ExpireLogs"
+        id      = "IntelligentTiering"
         enabled = true
 
+        transition {
+            days          = 1
+            storage_class = "INTELLIGENT_TIERING"
+        }
+    }
+
+    lifecycle_rule {
+        id      = "Expire"
+        enabled = var.logs_expire > 0
+
         expiration {
-            days = var.logs_expire
+            days = var.logs_expire == 0 ? 999 : var.logs_expire
+        }
+
+        noncurrent_version_expiration {
+            days = 7
+        }
+    }
+
+    lifecycle_rule {
+        id      = "CleanUp"
+        enabled = true
+
+        abort_incomplete_multipart_upload_days = 7
+
+        expiration {
+            expired_object_delete_marker = true
         }
     }
 

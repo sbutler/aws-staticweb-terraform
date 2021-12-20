@@ -50,6 +50,42 @@ resource "aws_s3_bucket" "this" {
         index_document = var.index_document
     }
 
+    dynamic "lifecycle_rule" {
+        for_each = [ 1, 7, 30, 90, 365 ]
+        content {
+            id      = "NonCurrentExpire${lifecycle_rule.value}"
+            enabled = true
+
+            tags = {
+                NonCurrentExpire = tostring(lifecycle_rule.value)
+            }
+
+            noncurrent_version_expiration {
+                days = lifecycle_rule.value
+            }
+        }
+    }
+
+    lifecycle_rule {
+        id      = "NonCurrentExpire-Default"
+        enabled = var.noncurrent_expire > 0
+
+        noncurrent_version_expiration {
+            days = var.noncurrent_expire == 0 ? 999 : var.noncurrent_expire
+        }
+    }
+
+    lifecycle_rule {
+        id      = "CleanUp"
+        enabled = true
+
+        abort_incomplete_multipart_upload_days = 7
+
+        expiration {
+            expired_object_delete_marker = true
+        }
+    }
+
     logging {
         target_bucket = local.logs_bucket
         target_prefix = var.logs_prefix

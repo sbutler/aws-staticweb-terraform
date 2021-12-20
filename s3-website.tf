@@ -96,9 +96,10 @@ module "website" {
 
     data_classification = var.data_classification
 
-    cf_useragent   = local.cf_useragent
-    index_document = var.website_index_document
-    name           = local.website_bucket
+    cf_useragent      = local.cf_useragent
+    index_document    = var.website_index_document
+    name              = local.website_bucket
+    noncurrent_expire = var.website_noncurrent_expire
 
     logs_bucket = var.logs_bucket
     logs_expire = var.logs_expire

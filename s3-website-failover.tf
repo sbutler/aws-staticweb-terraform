@@ -65,9 +65,10 @@ module "website_failover" {
 
     data_classification = var.data_classification
 
-    cf_useragent   = local.cf_useragent
-    index_document = var.website_index_document
-    name           = local.website_failover_bucket
+    cf_useragent      = local.cf_useragent
+    index_document    = var.website_index_document
+    name              = local.website_failover_bucket
+    noncurrent_expire = var.website_noncurrent_expire
 
     logs_bucket = var.failover_logs_bucket
     logs_expire = var.logs_expire
