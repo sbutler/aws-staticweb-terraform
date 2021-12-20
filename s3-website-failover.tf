@@ -26,7 +26,7 @@ data "aws_iam_policy_document" "website_replication" {
         ]
 
         resources = [
-            "arn:${local.partition}:s3:::${local.website_bucket}",
+            "arn:${local.partition}:s3:::${local.website_bucket}/*",
         ]
     }
 
