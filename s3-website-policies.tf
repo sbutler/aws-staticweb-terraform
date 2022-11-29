@@ -55,7 +55,9 @@ data "aws_iam_policy_document" "website_ReadOnlyAccess" {
 }
 
 data "aws_iam_policy_document" "website_ReadWriteAccess" {
-    source_json = data.aws_iam_policy_document.website_ReadOnlyAccess.json
+    source_policy_documents = [
+        data.aws_iam_policy_document.website_ReadOnlyAccess.json,
+    ]
 
     statement {
         sid    = "S3ObjectWrite"

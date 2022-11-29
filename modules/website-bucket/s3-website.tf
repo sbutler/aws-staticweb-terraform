@@ -68,9 +68,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
             status = "Enabled"
 
             filter {
-                tag {
-                    key   = "NonCurrentExpire"
-                    value = tostring(rule.value)
+                and {
+                    tags = {
+                        NonCurrentExpire = tostring(rule.value)
+                    }
                 }
             }
 
