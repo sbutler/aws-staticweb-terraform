@@ -110,7 +110,7 @@ module "website" {
 # Resources: Objects
 # =========================================================
 
-resource "aws_s3_bucket_object" "website_favicon" {
+resource "aws_s3_object" "website_favicon" {
     depends_on = [
         aws_s3_bucket_replication_configuration.website_replication,
     ]
@@ -125,7 +125,7 @@ resource "aws_s3_bucket_object" "website_favicon" {
     cache_control = "public, max-age=604800"
 }
 
-resource "aws_s3_bucket_object" "website_error_png" {
+resource "aws_s3_object" "website_error_png" {
     for_each   = toset(local.website_error_pngs)
     depends_on = [
         aws_s3_bucket_replication_configuration.website_replication,
@@ -141,7 +141,7 @@ resource "aws_s3_bucket_object" "website_error_png" {
     cache_control = "public, max-age=604800"
 }
 
-resource "aws_s3_bucket_object" "website_error_page" {
+resource "aws_s3_object" "website_error_page" {
     for_each   = local.website_error_codes
     depends_on = [
         aws_s3_bucket_replication_configuration.website_replication,

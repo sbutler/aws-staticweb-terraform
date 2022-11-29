@@ -13,10 +13,7 @@ data "aws_s3_bucket" "logs" {
 # =========================================================
 
 locals {
-    logs_bucket = coalesce(
-        join("", data.aws_s3_bucket.logs[*].bucket),
-        join("", aws_s3_bucket.logs[*].bucket),
-    )
+    logs_bucket = var.logs_bucket == null ? aws_s3_bucket.logs[0].bucket : data.aws_s3_bucket.logs[0].bucket
 }
 
 # =========================================================
@@ -27,53 +24,6 @@ resource "aws_s3_bucket" "logs" {
     count = var.logs_bucket == null ? 1 : 0
 
     bucket = "logs-${var.name}"
-    acl    = "log-delivery-write"
-
-    versioning {
-        enabled = false
-    }
-
-    server_side_encryption_configuration {
-        rule {
-            apply_server_side_encryption_by_default {
-                sse_algorithm     = "AES256"
-            }
-        }
-    }
-
-    lifecycle_rule {
-        id      = "IntelligentTiering"
-        enabled = true
-
-        transition {
-            days          = 1
-            storage_class = "INTELLIGENT_TIERING"
-        }
-    }
-
-    lifecycle_rule {
-        id      = "Expire"
-        enabled = var.logs_expire > 0
-
-        expiration {
-            days = var.logs_expire == 0 ? 999 : var.logs_expire
-        }
-
-        noncurrent_version_expiration {
-            days = 7
-        }
-    }
-
-    lifecycle_rule {
-        id      = "CleanUp"
-        enabled = true
-
-        abort_incomplete_multipart_upload_days = 7
-
-        expiration {
-            expired_object_delete_marker = true
-        }
-    }
 
     tags = {
         DataClassification = var.data_classification == "Public" ? "Internal" : var.data_classification
@@ -81,6 +31,79 @@ resource "aws_s3_bucket" "logs" {
 
     lifecycle {
         #prevent_destroy = true
+    }
+}
+
+resource "aws_s3_bucket_acl" "logs" {
+    count = var.logs_bucket == null ? 1 : 0
+
+    bucket = aws_s3_bucket.logs[count.index].id
+    acl    = "log-delivery-write"
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
+    count = var.logs_bucket == null ? 1 : 0
+
+    bucket = aws_s3_bucket.logs[count.index].id
+
+    rule {
+        apply_server_side_encryption_by_default {
+            sse_algorithm = "AES256"
+        }
+    }
+}
+
+resource "aws_s3_bucket_intelligent_tiering_configuration" "logs" {
+    count = var.logs_bucket == null ? 1 : 0
+
+    bucket = aws_s3_bucket.logs[count.index].id
+    name   = "ArchiveLogs"
+
+    tiering {
+        access_tier = "ARCHIVE_ACCESS"
+        days        = 90
+    }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "logs" {
+    count = var.logs_bucket == null ? 1 : 0
+
+    bucket = aws_s3_bucket.logs[count.index].id
+
+    rule {
+        id     = "IntelligentTiering"
+        status = "Enabled"
+
+        transition {
+            days          = 1
+            storage_class = "INTELLIGENT_TIERING"
+        }
+    }
+
+    rule {
+        id     = "Expire"
+        status = var.logs_expire > 0 ? "Enabled" : "Disabled"
+
+        expiration {
+            days = var.logs_expire == 0 ? 999 : var.logs_expire
+        }
+
+        noncurrent_version_expiration {
+            noncurrent_days = 7
+        }
+    }
+
+    rule {
+        id     = "CleanUp"
+        status = "Enabled"
+
+        abort_incomplete_multipart_upload {
+            days_after_initiation = 7
+        }
+
+        expiration {
+            expired_object_delete_marker = true
+        }
     }
 }
 
@@ -95,14 +118,12 @@ resource "aws_s3_bucket_public_access_block" "logs" {
     restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_intelligent_tiering_configuration" "logs" {
+resource "aws_s3_bucket_versioning" "logs" {
     count = var.logs_bucket == null ? 1 : 0
 
     bucket = aws_s3_bucket.logs[count.index].id
-    name   = "ArchiveLogs"
 
-    tiering {
-        access_tier = "ARCHIVE_ACCESS"
-        days        = 90
+    versioning_configuration {
+        status = "Disabled"
     }
 }

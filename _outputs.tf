@@ -1,5 +1,5 @@
 output "cloudfront_domain" {
-    value = var.cloudfront_enabled ? join("", aws_cloudfront_distribution.website[*].domain_name) : null
+    value = var.cloudfront_enabled ? aws_cloudfront_distribution.website[0].domain_name : null
 }
 
 output "website" {
@@ -12,9 +12,9 @@ output "website" {
 
 output "website_failover" {
     value = var.cloudfront_enabled ? {
-        bucket               = join("", module.website_failover[*].bucket)
-        endpoint             = join("", module.website_failover[*].website_endpoint)
-        regional_domain_name = join("", module.website_failover[*].bucket_regional_domain_name)
+        bucket               = module.website_failover[0].bucket
+        endpoint             = module.website_failover[0].website_endpoint
+        regional_domain_name = module.website_failover[0].bucket_regional_domain_name
     } : {
         bucket               = null
         endpoint             = null

@@ -36,61 +36,6 @@ data "aws_iam_policy_document" "this_s3" {
 resource "aws_s3_bucket" "this" {
     bucket = var.name
 
-    policy = data.aws_iam_policy_document.this_s3.json
-    versioning {
-        enabled = true
-    }
-
-    cors_rule {
-        allowed_methods = [ "GET" ]
-        allowed_origins = [ "*" ]
-    }
-
-    website {
-        index_document = var.index_document
-    }
-
-    dynamic "lifecycle_rule" {
-        for_each = [ 1, 7, 30, 90, 365 ]
-        content {
-            id      = "NonCurrentExpire${lifecycle_rule.value}"
-            enabled = true
-
-            tags = {
-                NonCurrentExpire = tostring(lifecycle_rule.value)
-            }
-
-            noncurrent_version_expiration {
-                days = lifecycle_rule.value
-            }
-        }
-    }
-
-    lifecycle_rule {
-        id      = "NonCurrentExpire-Default"
-        enabled = var.noncurrent_expire > 0
-
-        noncurrent_version_expiration {
-            days = var.noncurrent_expire == 0 ? 999 : var.noncurrent_expire
-        }
-    }
-
-    lifecycle_rule {
-        id      = "CleanUp"
-        enabled = true
-
-        abort_incomplete_multipart_upload_days = 7
-
-        expiration {
-            expired_object_delete_marker = true
-        }
-    }
-
-    logging {
-        target_bucket = local.logs_bucket
-        target_prefix = var.logs_prefix
-    }
-
     tags = {
         DataClassification = var.data_classification
     }
@@ -101,5 +46,97 @@ resource "aws_s3_bucket" "this" {
         ]
 
         #prevent_destroy = true
+    }
+}
+
+resource "aws_s3_bucket_cors_configuration" "this" {
+    bucket = aws_s3_bucket.this.id
+
+    cors_rule {
+        allowed_methods = [ "GET" ]
+        allowed_origins = [ "*" ]
+    }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "this" {
+    bucket = aws_s3_bucket.this.id
+
+    dynamic "rule" {
+        for_each = [ 1, 7, 30, 90, 365 ]
+        content {
+            id     = "NonCurrentExpire${rule.value}"
+            status = "Enabled"
+
+            filter {
+                tag {
+                    key   = "NonCurrentExpire"
+                    value = tostring(rule.value)
+                }
+            }
+
+            noncurrent_version_expiration {
+                noncurrent_days = rule.value
+            }
+        }
+    }
+
+    rule {
+        id     = "NonCurrentExpire-Default"
+        status = var.noncurrent_expire > 0 ? "Enabled" : "Disabled"
+
+        noncurrent_version_expiration {
+            noncurrent_days = var.noncurrent_expire == 0 ? 999 : var.noncurrent_expire
+        }
+    }
+
+    rule {
+        id     = "CleanUp"
+        status = "Enabled"
+
+        abort_incomplete_multipart_upload {
+            days_after_initiation = 7
+        }
+
+        expiration {
+            expired_object_delete_marker = true
+        }
+    }
+}
+
+resource "aws_s3_bucket_logging" "this" {
+    depends_on = [
+        aws_s3_bucket_acl.logs,
+        aws_s3_bucket_server_side_encryption_configuration.logs,
+        aws_s3_bucket_intelligent_tiering_configuration.logs,
+        aws_s3_bucket_lifecycle_configuration.logs,
+        aws_s3_bucket_public_access_block.logs,
+        aws_s3_bucket_versioning.logs,
+    ]
+
+    bucket = aws_s3_bucket.this.id
+
+    target_bucket = local.logs_bucket
+    target_prefix = var.logs_prefix
+}
+
+resource "aws_s3_bucket_policy" "this" {
+    bucket = aws_s3_bucket.this.id
+
+    policy = data.aws_iam_policy_document.this_s3.json
+}
+
+resource "aws_s3_bucket_versioning" "this" {
+    bucket = aws_s3_bucket.this.id
+
+    versioning_configuration {
+        status = "Enabled"
+    }
+}
+
+resource "aws_s3_bucket_website_configuration" "this" {
+    bucket = aws_s3_bucket.this.bucket
+
+    index_document {
+        suffix = var.index_document
     }
 }
