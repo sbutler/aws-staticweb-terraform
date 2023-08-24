@@ -122,6 +122,7 @@ resource "aws_s3_object" "website_favicon" {
 
     bucket = module.website.bucket
     key    = "favicon.ico"
+    acl    = "private"
 
     source = "${path.module}/files/favicon.ico"
     etag   = filemd5("${path.module}/files/favicon.ico")
@@ -138,6 +139,7 @@ resource "aws_s3_object" "website_error_png" {
 
     bucket = module.website.bucket
     key    = "error/${each.key}"
+    acl    = "private"
 
     source = "${path.module}/files/${each.key}"
     etag   = filemd5("${path.module}/files/${each.key}")
@@ -154,6 +156,7 @@ resource "aws_s3_object" "website_error_page" {
 
     bucket = module.website.bucket
     key    = "error/${each.key}.html"
+    acl    = "private"
 
     content = each.value.content
     etag    = md5(each.value.content)
