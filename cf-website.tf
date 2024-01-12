@@ -112,12 +112,6 @@ resource "aws_cloudfront_distribution" "website" {
                 "Access-Control-Request-Method",
                 "Origin",
             ]
-
-            headers = [
-                "Access-Control-Request-Headers",
-                "Access-Control-Request-Method",
-                "Origin",
-            ]
             query_string = false
         }
 
