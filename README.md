@@ -2,7 +2,7 @@
 
 This is a terraform configuration to help you with best practices when
 deploying a static website in AWS using S3 and CloudFront. It was
-designed to be used as a module or standalone configuration.
+designed to be used as a module.
 
 If you enable CloudFront then this terraform also deploys a failover bucket
 in a different region, with content automatically copied from the primary
@@ -10,14 +10,14 @@ bucket. This gives you cheap failover capabilities in case of a region outage.
 
 Basic requirements for deploying this configuration:
 
-* terraform >= 1.1.0
+* terraform >= 1.6.2
 
 ## Security
 
-No attempt is made to restrict access to the web S3 bucket or objects
-in it. Clients who discover the web S3 bucket name can make direct
-requests to it bypassing CloudFront. Do not store anything other than
-Public data in the web S3 bucket!
+An attempt is made to restrict direct access to the web S3 buckets by using
+a custom User-Agent string. The value for this header should be kept
+confidential. However, this is not a completely secure solution and you should
+not store anything other than Public data in the web S3 buckets!
 
 ## Custom Domains and SSL Certificate
 
@@ -65,26 +65,26 @@ required.
 
 These variables are standard ones required by Technology Services.
 
-| Variable                | Default    | Example                  | Description |
-| ----------------------- | ---------- | ------------------------ | ----------- |
-| **service**             |            | `"Example"`              | Service Catalog name for the service this website is a part of. |
-| **contact**             |            | `"example@illinois.edu"` | Internal contact email for who to notify for problems with resources. |
-| data_classification     | `"Public"` | `"Internal"`             | Illini Secure data classification for data stored on the resources. Since no attempt is made to restrict the web bucket you should not use anything other than "Public" here. |
-| environment             | `""`       | `"Dev"`                  | Production, Test, Development, etc. |
-| **project**             |            | `"example"               | Short, simple (letters, numbers, hyphen, underscore) project name that will be used as the prefix for all named resources. |
+| Variable            | Default    | Example      | Description |
+| ------------------- | ---------- | ------------ | ----------- |
+| data_classification | `"Public"` | `"Internal"` | Illini Secure data classification for data stored on the resources. Since no attempt is made to restrict the web bucket you should not use anything other than "Public" here. |
+| **project**         |            | `"example"   | Short, simple (letters, numbers, hyphen, underscore) project name that will be used as the prefix for all named resources. |
+| name_prefix         | `null`     | `"example-"` | Short, simple (letters, numbers, hyphen, underscore) project name that will be used as a prefix for resource names. Defaults to '$project-'. |
 
 ### Website
 
 These variables change how the website behaves.
 
-| Variable                  | Default                  | Example                  | Description |
-| ------------------------- | ------------------------ | ------------------------ | ----------- |
-| website_index_document    | `"index.html"`           | `"homepage.html"`        | Filename to use when a URL requests a directory. |
-| website_logs_prefix       | `"s3/"`                  | `"example/s3/"`          | Prefix to use when storing S3 logs in a logging bucket **(must end in a "/")**. You can use the same logging bucket for multiple services by changing this prefix. |
-| website_error_headers     | (varies)                 |                          | This is a map of HTTP Status Code to text to display in the header element of the error page. You can override individual header texts by changing this variable. |
-| website_error_messages    | (varies)                 |                          | This is a map of HTTP Status Code to text to display in the message element of the error page. Full HTML is allowed here. You can override individual message texts by changing this variable. |
-| website_error_contact     | `"consult@illinois.edu"` | `"example@illinois.edu"` | Email address to list as the contact on error pages. |
-| website_noncurrent_expire | `0`                      | `7`                      | Number of days before expiring non-current versions of objects. Set to 0 to not expire. |
+| Variable                     | Default                  | Example                  | Description |
+| ---------------------------- | ------------------------ | ------------------------ | ----------- |
+| website_index_document       | `"index.html"`           | `"homepage.html"`        | Filename to use when a URL requests a directory. |
+| website_logs_prefix          | `"s3/"`                  | `"example/s3/"`          | Prefix to use when storing S3 logs for the main bucket in a logging bucket **(must end in a "/")**. You can use the same logging bucket for multiple services by changing this prefix. |
+| website_error_department     | `null`                   | `"Tech Services"`        | Department to use for the wordmark on error pages. The default is either the first custom domain, or the value `"University of Illinois"`. |
+| website_error_headers        | (varies)                 |                          | This is a map of HTTP Status Code to text to display in the header element of the error page. You can override individual header texts by changing this variable. |
+| website_error_messages       | (varies)                 |                          | This is a map of HTTP Status Code to text to display in the message element of the error page. Full HTML is allowed here. You can override individual message texts by changing this variable. |
+| website_error_contact        | `"consult@illinois.edu"` | `"example@illinois.edu"` | Email address to list as the contact on error pages. |
+| website_failover_logs_prefix | `"s3/"`                  | `"example/s3/"`          | Prefix to use when storing S3 logs for the failover bucket in a logging bucket **(must end in a "/")**. You can use the same logging bucket for multiple services by changing this prefix. |
+| website_noncurrent_expire    | `0`                      | `7`                      | Number of days before expiring non-current versions of objects. Set to 0 to not expire. |
 
 ### CloudFront
 
@@ -113,10 +113,11 @@ These variables change how logs are stored. You can choose to log to
 an existing bucket or let the terraform create a logging bucket for
 you. If the terraform creates a bucket then it is private.
 
-| Variable                | Default | Example          | Description |
-| ----------------------- | ------- | ---------------- | ----------- |
-| logs_bucket             | `null`  | `"example-logs"` | Name of the bucket to store logs in. If not provided then a new, private bucket will be created. |
-| lgos_expire             | `30`    | `90`             | Number of days to wait before deleting log files. This is only used if `logs_bucket` is not specified. |
+| Variable             | Default | Example                   | Description |
+| -------------------- | ------- | ------------------------- | ----------- |
+| logs_bucket          | `null`  | `"example-logs"`          | Name of the bucket to store main bucket logs in. If not provided then a new, private bucket will be created. |
+| failover_logs_bucket | `null`  | `"example-failover-logs"` | Name of the bucket to store failover bucket logs in. If not provided then a new, private bucket will be created. |
+| logs_expire          | `30`    | `90`                      | Number of days to wait before deleting log files. This is only used if `logs_bucket` is not specified. |
 
 ## Outputs
 
@@ -125,5 +126,5 @@ The terraform configuration outputs several values for you to use.
 | Value             | Description |
 | ----------------- | ----------- |
 | cloudfront_domain | Domain name of your static website. You can create a CNAME to this in DNS to use custom domains (if configured in `cloudfront_domains`). If you need to create A or AAAA records then you will have to use AWS Route53 with aliases to this domain. |
-| website_bucket    | Name of the S3 bucket for your website content. |
-| website_endpoint  | Domain name for your S3 bucket that handles website operations like index redirection. If you are using a custom CloudFront distribution then use this as a custom origin. |
+| website           | The main bucket information: bucket, endpoint, regional_domain_name. |
+| website_failover  | The failover bucket information: bucket, endpoint, regional_domain_name. These values are null if no failover site was created. |

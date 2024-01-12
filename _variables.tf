@@ -2,26 +2,10 @@
 # Cloud First
 # =========================================================
 
-variable "service" {
-    type        = string
-    description = "Service name (match Service Catalog where possible)."
-}
-
-variable "contact" {
-    type        = string
-    description = "Service email address."
-}
-
 variable "data_classification" {
     type        = string
     description = "Public, Internal, Sensitive, or HighRisk (choose the most rigorous standard that applies)."
     default     = "Public"
-}
-
-variable "environment" {
-    type        = string
-    description = "Production, Test, Development, Green, Blue, etc."
-    default     = ""
 }
 
 variable "project" {
@@ -35,7 +19,6 @@ variable "name_prefix" {
     default     = null
 }
 
-
 # =========================================================
 # Website
 # =========================================================
@@ -48,7 +31,7 @@ variable "website_index_document" {
 
 variable "website_logs_prefix" {
     type        = string
-    description = "Prefix to use for object keys for S3 logs."
+    description = "Prefix to use for object keys for S3 logs of the main bucket."
     default     = "s3/"
 
     validation {
@@ -83,7 +66,7 @@ variable "website_error_contact" {
 
 variable "website_failover_logs_prefix" {
     type        = string
-    description = "Prefix to use for object keys for S3 logs."
+    description = "Prefix to use for object keys for S3 logs of the failover bucket."
     default     = "s3/"
 
     validation {
