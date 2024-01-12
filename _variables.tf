@@ -57,6 +57,12 @@ variable "website_logs_prefix" {
     }
 }
 
+variable "website_error_department" {
+    type        = string
+    description = "Department to use for the wordmark on error pages."
+    default     = null
+}
+
 variable "website_error_headers" {
     type        = map(string)
     description = "Map of HTTP Status Codes to error page header strings."

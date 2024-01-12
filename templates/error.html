@@ -3,52 +3,31 @@
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>${status_code}: ${header_text} - University of Illinois</title>
-
+    <link rel="stylesheet" href="https://cdn.toolkit.illinois.edu/2/toolkit.css">
     <style type="text/css">
         html, body {
             margin: 0px;
             padding: 0px;
         }
 
-        /* IE11 fixes */
-        header, main, footer {
-            display: block;
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        header {
-            background-color: #13294B;
-        }
-
-        #logo {
-            display: block;
-            height: 100px;
-            width: 69px;
-
-            margin-left: auto;
-            margin-right: auto;
-            padding-top: 100px;
-            padding-bottom: 100px;
-        }
-
-        #main, #footer {
-            max-width: 583px;
-            margin: 20px auto;
-            padding-left: 20px;
-            padding-right: 20px;
+        #main {
+            margin-bottom: 3em;
+            padding: 0 var(--il-content-margin);
 
             color: #555;
             font-size: 1.5em;
         }
 
-        #footer {
-            margin-top: 3em;
-        }
-
-        #main h1 {
+        #main h2 {
             margin-top: 20px;
             margin-bottom: 20px;
 
@@ -57,33 +36,50 @@
             font-family: Helvetica, Arial, sans-serif;
         }
 
-        #footer p {
-            font-style: italic;
+        #main pre {
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
         }
 
-        @media (min-width: 783px) {
-            #logo {
-                width: 583px;
-            }
+        #footer {
+            margin-top: auto;
         }
     </style>
+
+    <script src="https://cdn.toolkit.illinois.edu/2/toolkit.js"></script>
+
+    <link rev="made" href="mailto:${contact}">
 </head>
-<body>
-    <header role="banner">
-        <picture id="logo">
-            <source media="(min-width: 783px)" srcset="/error/wordmark.png, /error/wordmark@2x.png 2x, /error/wordmark@3x.png 3x">
-            <img src="/error/logo.png" srcset="/error/logo.png, /error/logo@2x.png 2x, /error/logo@3x.png 3x" alt="University of Illinois">
-        </picture>
+<body><il-page>
+    <header role="banner" slot="header">
+        <il-header>
+            <div slot="wordmark">
+                <il-unit-wordmark>
+                        <h1>${department}</h1>
+                </il-unit-wordmark>
+              </div>
+        </il-header>
     </header>
 
     <main id="main" role="main">
-        <h1>${status_code}: ${header_text}</h1>
-
-        ${message_text}
+        <il-section class="il-fixed-width il-formatted">
+            <h2>${status_code}: ${header_text}</h2>
+            <section id="message">
+                ${message_text}
+            </section>
+        </il-section>
     </main>
 
-    <footer id="footer" role="footer">
-        <p>Contact: <a href="mailto:${contact}">${contact}</a></p>
+    <footer id="footer" role="footer" slot="footer">
+        <il-footer>
+            <div slot="contact" class="il-footer-contact">
+                <p>${department}</p>
+                <p>Email: <a href="mailto:${contact}">Webmaster</a></p>
+            </div>
+        </il-footer>
     </footer>
-</body>
+</il-page></body>
 </html>

@@ -75,6 +75,11 @@ locals {
                 status_code  = k
                 header_text  = lookup(var.website_error_headers,  k, d.header)
                 message_text = lookup(var.website_error_messages, k, d.message)
+                department   = coalesce(
+                    var.website_error_department,
+                    length(var.cloudfront_domains) > 0 ? var.cloudfront_domains[0] : null,
+                    "University of Illinois"
+                )
                 contact      = var.website_error_contact
             }
         )
