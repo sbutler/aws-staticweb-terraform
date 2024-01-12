@@ -4,17 +4,17 @@ output "cloudfront_domain" {
 
 output "website" {
     value = {
-        bucket               = aws_s3_bucket.website.bucket
-        endpoint             = aws_s3_bucket.website.website_endpoint
-        regional_domain_name = aws_s3_bucket.website.bucket_regional_domain_name
+        bucket               = module.website.bucket
+        endpoint             = module.website.website_endpoint
+        regional_domain_name = module.website.bucket_regional_domain_name
     }
 }
 
 output "website_failover" {
     value = var.cloudfront_enabled ? {
-        bucket               = join("", aws_s3_bucket.website_failover[*].bucket)
-        endpoint             = join("", aws_s3_bucket.website_failover[*].website_endpoint)
-        regional_domain_name = join("", aws_s3_bucket.website_failover[*].bucket_regional_domain_name)
+        bucket               = join("", module.website_failover[*].bucket)
+        endpoint             = join("", module.website_failover[*].website_endpoint)
+        regional_domain_name = join("", module.website_failover[*].bucket_regional_domain_name)
     } : {
         bucket               = null
         endpoint             = null

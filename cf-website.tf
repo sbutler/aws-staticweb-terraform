@@ -3,7 +3,7 @@
 # =========================================================
 
 locals {
-    cf_useragent = "Amazon CloudFront/${nonsensitive(random_password.cf_useragent_password.result)}"
+    cf_useragent = var.cloudfront_enabled ? "Amazon CloudFront/${nonsensitive(random_password.cf_useragent_password.result)}" : null
 }
 
 # =========================================================
@@ -24,7 +24,7 @@ resource "aws_cloudfront_distribution" "website" {
     price_class     = "PriceClass_100"
 
     logging_config {
-        bucket = "${local.logs_bucket}.s3.amazonaws.com"
+        bucket = "${module.website.logs_bucket}.s3.amazonaws.com"
         prefix = var.cloudfront_logs_prefix
     }
 
@@ -44,8 +44,8 @@ resource "aws_cloudfront_distribution" "website" {
     }
 
     origin {
-        origin_id   = "S3Web-${local.name_prefix}web"
-        domain_name = aws_s3_bucket.website.website_endpoint
+        origin_id   = "S3Web-web"
+        domain_name = module.website.website_endpoint
 
         custom_header {
             name  = "User-Agent"
@@ -61,8 +61,8 @@ resource "aws_cloudfront_distribution" "website" {
     }
 
     origin {
-        origin_id   = "S3Web-${var.project}-web-failover"
-        domain_name = aws_s3_bucket.website_failover[0].website_endpoint
+        origin_id   = "S3Web-web-failover"
+        domain_name = module.website_failover[count.index].website_endpoint
 
         custom_header {
             name  = "User-Agent"
@@ -78,23 +78,23 @@ resource "aws_cloudfront_distribution" "website" {
     }
 
     origin_group {
-        origin_id = "S3Web-${var.project}"
+        origin_id = "S3Web"
 
         failover_criteria {
             status_codes = [ 500, 502, 503, 504 ]
         }
 
         member {
-            origin_id = "S3Web-${var.project}-web"
+            origin_id = "S3Web-web"
         }
 
         member {
-            origin_id = "S3Web-${var.project}-web-failover"
+            origin_id = "S3Web-web-failover"
         }
     }
 
     default_cache_behavior {
-        target_origin_id       = "S3Web-${var.project}"
+        target_origin_id       = "S3Web"
         viewer_protocol_policy = var.cloudfront_certificate_arn == null ? "allow-all" : "redirect-to-https"
 
         allowed_methods = [ "GET", "HEAD", "OPTIONS" ]

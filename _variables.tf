@@ -48,8 +48,13 @@ variable "website_index_document" {
 
 variable "website_logs_prefix" {
     type        = string
-    description = "Prefix to use for object keys for S3 logs (must end with a '/' or be empty)."
+    description = "Prefix to use for object keys for S3 logs."
     default     = "s3/"
+
+    validation {
+        condition     = can(regex("^([^/].*/)?$", var.website_logs_prefix))
+        error_message = "Must be empty, or not start with a '/' and end with a '/'."
+    }
 }
 
 variable "website_error_headers" {
@@ -70,10 +75,15 @@ variable "website_error_contact" {
     default     = "consult@illinois.edu"
 }
 
-variable "website_policy_json" {
+variable "website_failover_logs_prefix" {
     type        = string
-    description = "S3 bucket policy document that can override parts of the default one."
-    default     = null
+    description = "Prefix to use for object keys for S3 logs."
+    default     = "s3/"
+
+    validation {
+        condition     = can(regex("^([^/].*/)?$", var.website_failover_logs_prefix))
+        error_message = "Must be empty, or not start with a '/' and end with a '/'."
+    }
 }
 
 # =========================================================
@@ -118,8 +128,13 @@ variable "cloudfront_default_ttl" {
 
 variable "cloudfront_logs_prefix" {
     type        = string
-    description = "Prefix to use for object keys for CloudFront logs (must end with a '/' or be empty)."
+    description = "Prefix to use for object keys for CloudFront logs."
     default     = "cloudfront/"
+
+    validation {
+        condition     = can(regex("^([^/].*/)?$", var.cloudfront_logs_prefix))
+        error_message = "Must be empty, or not start with a '/' and end with a '/'."
+    }
 }
 
 
@@ -128,6 +143,12 @@ variable "cloudfront_logs_prefix" {
 # =========================================================
 
 variable "logs_bucket" {
+    type        = string
+    description = "Name of the bucket for logging. If not provided then a new bucket will be created."
+    default     = null
+}
+
+variable "failover_logs_bucket" {
     type        = string
     description = "Name of the bucket for logging. If not provided then a new bucket will be created."
     default     = null

@@ -1,37 +1,4 @@
 # =========================================================
-# Data
-# =========================================================
-
-data "aws_iam_policy_document" "s3_website" {
-    override_json = var.website_policy_json == null ? null : join("", data.template_file.website_policy_json[*].rendered)
-
-    statement {
-        sid    = "CloudFrontRead"
-        effect = "Allow"
-
-        actions = [ "s3:GetObject" ]
-
-        resources = [
-            "arn:${local.partition}:s3:::${local.website_bucket}/*",
-        ]
-
-        principals {
-            type        = "*"
-            identifiers = [ "*" ]
-        }
-
-        dynamic "condition" {
-            for_each = var.cloudfront_enabled ? [ local.cf_useragent ] : []
-            content {
-                test     = "StringEquals"
-                variable = "aws:UserAgent"
-                values   = [ condition.value ]
-            }
-        }
-    }
-}
-
-# =========================================================
 # Locals
 # =========================================================
 
@@ -124,44 +91,18 @@ resource "random_id" "website" {
     byte_length = 16
 }
 
-resource "aws_s3_bucket" "website" {
-    bucket = local.website_bucket
+module "website" {
+    source = "./modules/website-bucket"
 
-    policy = data.aws_iam_policy_document.s3_website.json
-    versioning {
-        enabled = true
-    }
+    data_classification = var.data_classification
 
-    cors_rule {
-        allowed_methods = [ "GET" ]
-        allowed_origins = [ "*" ]
-    }
+    cf_useragent   = local.cf_useragent
+    index_document = var.website_index_document
+    name           = local.website_bucket
 
-    website {
-        index_document = var.website_index_document
-    }
-
-    cors_rule {
-        allowed_methods = [ "GET" ]
-        allowed_origins = [ "*" ]
-    }
-
-    logging {
-        target_bucket = local.logs_bucket
-        target_prefix = var.website_logs_prefix
-    }
-
-    tags = {
-        DataClassification = var.data_classification
-    }
-
-    lifecycle {
-        ignore_changes = [
-            replication_configuration
-        ]
-
-        #prevent_destroy = true
-    }
+    logs_bucket = var.logs_bucket
+    logs_expire = var.logs_expire
+    logs_prefix = var.website_logs_prefix
 }
 
 # =========================================================
@@ -173,7 +114,7 @@ resource "aws_s3_bucket_object" "website_favicon" {
         aws_s3_bucket_replication_configuration.website_replication,
     ]
 
-    bucket = aws_s3_bucket.website.bucket
+    bucket = module.website.bucket
     key    = "favicon.ico"
 
     source = "${path.module}/files/favicon.ico"
@@ -189,7 +130,7 @@ resource "aws_s3_bucket_object" "website_error_png" {
         aws_s3_bucket_replication_configuration.website_replication,
     ]
 
-    bucket = aws_s3_bucket.website.bucket
+    bucket = module.website.bucket
     key    = "error/${each.key}"
 
     source = "${path.module}/files/${each.key}"
@@ -205,7 +146,7 @@ resource "aws_s3_bucket_object" "website_error_page" {
         aws_s3_bucket_replication_configuration.website_replication,
     ]
 
-    bucket = aws_s3_bucket.website.bucket
+    bucket = module.website.bucket
     key    = "error/${each.key}.html"
 
     content = each.value.content
