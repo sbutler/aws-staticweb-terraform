@@ -113,6 +113,11 @@ resource "aws_s3_bucket" "website" {
         enabled = true
     }
 
+    cors_rule {
+        allowed_methods = [ "GET" ]
+        allowed_origins = [ "*" ]
+    }
+
     website {
         index_document = var.website_index_document
     }

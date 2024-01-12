@@ -56,6 +56,11 @@ resource "aws_cloudfront_distribution" "website" {
             cookies {
                 forward = "none"
             }
+            headers = [
+                "Access-Control-Request-Headers",
+                "Access-Control-Request-Method",
+                "Origin",
+            ]
 
             headers = [
                 "Access-Control-Request-Headers",
