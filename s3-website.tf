@@ -20,32 +20,6 @@ data "aws_iam_policy_document" "s3_website" {
     }
 }
 
-data "template_file" "website_error_page" {
-    count = length(local.website_error_codes)
-
-    template = file("${path.module}/templates/error.html")
-    vars = {
-        status_code  = local.website_error_codes[count.index]
-        header_text  = local.website_error_headers[local.website_error_codes[count.index]]
-        message_text = local.website_error_messages[local.website_error_codes[count.index]]
-        contact      = var.website_error_contact
-    }
-}
-
-# Allow the provided policy JSON to include template variables, such as the bucket
-# name and ARN. This does mean jumping through some hoops later when we want to use
-# it as an override_json.
-data "template_file" "website_policy_json" {
-    count = var.website_policy_json == null ? 0 : 1
-
-    template = var.website_policy_json
-    vars = {
-        bucket     = "${local.name_prefix}web-${random_id.website.hex}"
-        bucket_arn = "arn:aws:s3:::${local.name_prefix}web-${random_id.website.hex}"
-    }
-}
-
-
 # =========================================================
 # Locals
 # =========================================================
@@ -60,41 +34,73 @@ locals {
         "wordmark@3x.png",
     ]
 
-    website_error_codes = [ "400", "403", "404", "405", "414", "500", "501", "502", "503", "504" ]
-
-    default_website_error_headers = {
-        "400" = "Bad Request"
-        "403" = "Forbidden"
-        "404" = "Not Found"
-        "405" = "Method Not Allowed"
-        "414" = "Request-URI Too Large"
-        "500" = "Internal Server Error"
-        "501" = "Not Implemented"
-        "502" = "Bad Gateway"
-        "503" = "Service Unavailable"
-        "504" = "Gateway Timeout"
+    website_error_code_defaults = {
+        "400" = {
+            header  = "Bad Request"
+            message = "<p>Your browser (or proxy) sent a request that this server could not understand.</p>"
+            min_ttl = null
+        }
+        "403" = {
+            header  = "Forbidden"
+            message = "<p>You don't have permission to access the requested object. It is either read-protected or not readable by the server.</p>"
+            min_ttl = null
+        }
+        "404" = {
+            header  = "Not Found"
+            message = "<p>The requested URL was not found on this server.</p>"
+            min_ttl = 0
+        }
+        "405" = {
+            header  = "Method Not Allowed"
+            message = "<p>The HTTP method is not allowed for the requested URL.</p>"
+            min_ttl = null
+        }
+        "414" = {
+            header  = "Request-URI Too Large"
+            message = "<p>The length of the requested URL exceeds the capacity limit for this server. The request cannot be processed.</p>"
+            min_ttl = null
+        }
+        "500" = {
+            header  = "Internal Server Error"
+            message = "<p>The server encountered an internal error and was unable to complete your request.</p>"
+            min_ttl = null
+        }
+        "501" = {
+            header  = "Not Implemented"
+            message = "<p>The server does not support the action requested by the browser.</p>"
+            min_ttl = null
+        }
+        "502" = {
+            header  = "Bad Gateway"
+            message = "<p>The proxy server received an invalid response from an upstream server.</p>"
+            min_ttl = null
+        }
+        "503" = {
+            header  = "Service Unavailable"
+            message = "<p>The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.</p>"
+            min_ttl = null
+        }
+        "504" = {
+            header  = "Gateway Timeout"
+            message = "<p>The proxy servier timed out waiting for a response from an upstream server.</p>"
+            min_ttl = null
+        }
     }
-    website_error_headers = merge(
-        local.default_website_error_headers,
-        var.website_error_headers
-    )
+    website_error_codes = { for k, d in local.website_error_code_defaults : k => {
+        header  = lookup(var.website_error_headers,  k, d.header)
+        message = lookup(var.website_error_messages, k, d.message)
+        min_ttl = d.min_ttl
 
-    default_website_error_messages = {
-        "400" = "<p>Your browser (or proxy) sent a request that this server could not understand.</p>"
-        "403" = "<p>You don't have permission to access the requested object. It is either read-protected or not readable by the server.</p>"
-        "404" = "<p>The requested URL was not found on this server.</p>"
-        "405" = "<p>The HTTP method is not allowed for the requested URL.</p>"
-        "414" = "<p>The length of the requested URL exceeds the capacity limit for this server. The request cannot be processed.</p>"
-        "500" = "<p>The server encountered an internal error and was unable to complete your request.</p>"
-        "501" = "<p>The server does not support the action requested by the browser.</p>"
-        "502" = "<p>The proxy server received an invalid response from an upstream server.</p>"
-        "503" = "<p>The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.</p>"
-        "504" = "<p>The proxy servier timed out waiting for a response from an upstream server.</p>"
-    }
-    website_error_messages = merge(
-        local.default_website_error_messages,
-        var.website_error_messages
-    )
+        content = templatefile(
+            "${path.module}/templates/error.html",
+            {
+                status_code  = k
+                header_text  = lookup(var.website_error_headers,  k, d.header)
+                message_text = lookup(var.website_error_messages, k, d.message)
+                contact      = var.website_error_contact
+            }
+        )
+    } }
 }
 
 # =========================================================
@@ -157,26 +163,26 @@ resource "aws_s3_bucket_object" "website_favicon" {
 }
 
 resource "aws_s3_bucket_object" "website_error_png" {
-    count = length(local.website_error_pngs)
+    for_each = toset(local.website_error_pngs)
 
     bucket = aws_s3_bucket.website.bucket
-    key    = "error/${local.website_error_pngs[count.index]}"
+    key    = "error/${each.key}"
 
-    source = "${path.module}/files/${local.website_error_pngs[count.index]}"
-    etag   = filemd5("${path.module}/files/${local.website_error_pngs[count.index]}")
+    source = "${path.module}/files/${each.key}"
+    etag   = filemd5("${path.module}/files/${each.key}")
 
     content_type  = "image/png"
     cache_control = "public, max-age=604800"
 }
 
 resource "aws_s3_bucket_object" "website_error_page" {
-    count = length(local.website_error_codes)
+    for_each = local.website_error_codes
 
     bucket = aws_s3_bucket.website.bucket
-    key    = "error/${local.website_error_codes[count.index]}.html"
+    key    = "error/${each.key}.html"
 
-    content = data.template_file.website_error_page[count.index].rendered
-    etag    = md5(data.template_file.website_error_page[count.index].rendered)
+    content = each.value.content
+    etag    = md5(each.value.content)
 
     content_type = "text/html"
 }
