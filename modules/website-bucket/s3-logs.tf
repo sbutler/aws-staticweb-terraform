@@ -36,6 +36,9 @@ resource "aws_s3_bucket" "logs" {
 
 resource "aws_s3_bucket_acl" "logs" {
     count = var.logs_bucket == null ? 1 : 0
+    depends_on = [
+        aws_s3_bucket_ownership_controls.logs,
+    ]
 
     bucket = aws_s3_bucket.logs[count.index].id
     acl    = "log-delivery-write"
@@ -104,6 +107,16 @@ resource "aws_s3_bucket_lifecycle_configuration" "logs" {
         expiration {
             expired_object_delete_marker = true
         }
+    }
+}
+
+resource "aws_s3_bucket_ownership_controls" "logs" {
+    count = var.logs_bucket == null ? 1 : 0
+
+    bucket = aws_s3_bucket.logs[count.index].id
+
+    rule {
+        object_ownership = "BucketOwnerPreferred"
     }
 }
 

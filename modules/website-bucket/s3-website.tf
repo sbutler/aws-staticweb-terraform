@@ -120,6 +120,14 @@ resource "aws_s3_bucket_logging" "this" {
     target_prefix = var.logs_prefix
 }
 
+resource "aws_s3_bucket_ownership_controls" "this" {
+    bucket = aws_s3_bucket.this.id
+
+    rule {
+        object_ownership = "BucketOwnerEnforced"
+    }
+}
+
 resource "aws_s3_bucket_policy" "this" {
     bucket = aws_s3_bucket.this.id
 
