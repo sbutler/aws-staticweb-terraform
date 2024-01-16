@@ -49,7 +49,7 @@ data "aws_iam_policy_document" "website_replication" {
 # =========================================================
 
 locals {
-    website_failover_bucket = "${local.name_prefix}web-failover-${random_id.website.hex}"
+    website_failover_bucket = "${local.name_prefix}web-failover${local.website_bucket_suffix}"
 }
 
 # =========================================================

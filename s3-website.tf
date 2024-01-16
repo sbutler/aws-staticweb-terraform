@@ -85,7 +85,8 @@ locals {
         )
     } }
 
-    website_bucket = "${local.name_prefix}web-${random_id.website.hex}"
+    website_bucket        = "${local.name_prefix}web${local.website_bucket_suffix}"
+    website_bucket_suffix = length(local.name_prefix) >= 44 ? "" : "-${substr(random_id.website.hex, 0, 44 - length(local.name_prefix))}"
 }
 
 # =========================================================
@@ -94,6 +95,13 @@ locals {
 
 resource "random_id" "website" {
     byte_length = 16
+
+    lifecycle {
+        precondition {
+            condition     = length(local.name_prefix) <= 46
+            error_message = "The name_prefix value is too long."
+        }
+    }
 }
 
 module "website" {
