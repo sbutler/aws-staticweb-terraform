@@ -87,6 +87,10 @@ locals {
 
     website_bucket        = "${local.name_prefix}web${local.website_bucket_suffix}"
     website_bucket_suffix = length(local.name_prefix) >= 44 ? "" : "-${substr(random_id.website.hex, 0, 44 - length(local.name_prefix))}"
+    website_object_exts   = {
+        for k in keys(var.website_objects) :
+        k => regex("(.*?)(\\.[^.]+)?$", k)[1]
+    }
 }
 
 # =========================================================
@@ -167,4 +171,27 @@ resource "aws_s3_object" "website_error_page" {
     etag    = md5(each.value.content)
 
     content_type = "text/html"
+}
+
+resource "aws_s3_object" "website_object" {
+    for_each   = var.website_objects
+    depends_on = [
+        aws_s3_bucket_replication_configuration.website_replication,
+    ]
+
+    bucket = module.website.bucket
+    key    = each.key
+
+    content = each.value.content
+    source  = each.value.source
+    etag    = each.value.source == null ? md5(each.value.content) : filemd5(each.value.source)
+
+    content_disposition = each.value.content_disposition
+    content_encoding    = each.value.content_encoding
+    content_type        = coalesce(
+                            each.value.content_type,
+                            local.website_object_exts[each.key] == null ? null : lookup(local.mimetypes, local.website_object_exts[each.key], null),
+                            "application/octet-stream"
+                        )
+    cache_control       = each.value.cache_control
 }

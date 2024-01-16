@@ -19,9 +19,40 @@ variable "name_prefix" {
     default     = null
 }
 
+variable "mimetypes" {
+    type        = map(string)
+    description = "Map of file extensions to their mime-types. This is merged with the default included list."
+    default     = {}
+}
+
 # =========================================================
 # Website
 # =========================================================
+
+variable "website_objects" {
+    type        = map(object({
+                    source  = optional(string)
+                    content = optional(string)
+
+                    content_disposition = optional(string)
+                    content_encoding    = optional(string)
+                    content_type        = optional(string)
+
+                    cache_control = optional(string)
+                }))
+    description = "Map of objects to sync to the website main bucket. This must be a value suitable for for_each (known at plan time)."
+    default     = {}
+
+    validation {
+        condition     = alltrue([ for v in values(var.website_objects) : v.source != null || v.content != null ])
+        error_message = "Either source or content must be specified."
+    }
+
+    validation {
+        condition     = alltrue([ for v in values(var.website_objects) : v.source == null || v.content == null ])
+        error_message = "Only one of source or content can be specified."
+    }
+}
 
 variable "website_index_document" {
     type        = string
