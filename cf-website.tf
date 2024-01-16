@@ -28,7 +28,7 @@ resource "aws_cloudfront_distribution" "website" {
         prefix = var.cloudfront_logs_prefix
     }
 
-    aliases = var.cloudfront_domains
+    aliases = length(var.cloudfront_domains) > 0 ? var.cloudfront_domains : null
     viewer_certificate {
         acm_certificate_arn            = var.cloudfront_certificate_arn
         cloudfront_default_certificate = var.cloudfront_certificate_arn == null ? true : false

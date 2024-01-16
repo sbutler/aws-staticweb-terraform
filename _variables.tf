@@ -94,7 +94,7 @@ variable "cloudfront_enabled" {
 variable "cloudfront_domains" {
     type        = list(string)
     description = "List of custom domains for CloudFront to answer to."
-    default     = null
+    default     = []
 }
 
 variable "cloudfront_certificate_arn" {
