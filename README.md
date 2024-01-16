@@ -55,6 +55,16 @@ Additionally, you can tag files with `NonCurrentExpire` and a value of `1`,
 **Warning: you cannot use the tags to keep an old version longer than what
 you specify for `website_noncurrent_expire`.**
 
+## Error Pages
+
+When using the CloudFront distribution this module provides custom error pages
+using the University of Illinois Theme. You can change some values in these
+error pages using the module environment variables.
+
+Error pages and assets are stored in the S3 buckets under the `.error/` prefix.
+Do not upload your own objects under this prefix, and any changes you make to
+managed objects will be overwriten the next time the terraform is run.
+
 ## Variables
 
 This configuration has several variables you can use to customize how

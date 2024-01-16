@@ -124,7 +124,7 @@ resource "aws_cloudfront_distribution" "website" {
         content {
             error_code            = tonumber(custom_error_response.key)
             response_code         = tonumber(custom_error_response.key)
-            response_page_path    = "/error/${custom_error_response.key}.html"
+            response_page_path    = "/.error/${custom_error_response.key}.html"
             error_caching_min_ttl = custom_error_response.value.min_ttl
         }
     }

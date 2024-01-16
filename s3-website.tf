@@ -137,7 +137,7 @@ resource "aws_s3_object" "website_error_png" {
     ]
 
     bucket = module.website.bucket
-    key    = "error/${each.key}"
+    key    = ".error/${each.key}"
 
     source = "${path.module}/files/${each.key}"
     etag   = filemd5("${path.module}/files/${each.key}")
@@ -153,7 +153,7 @@ resource "aws_s3_object" "website_error_page" {
     ]
 
     bucket = module.website.bucket
-    key    = "error/${each.key}.html"
+    key    = ".error/${each.key}.html"
 
     content = each.value.content
     etag    = md5(each.value.content)
