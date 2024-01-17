@@ -12,6 +12,12 @@ Basic requirements for deploying this configuration:
 
 * terraform >= 1.6.2
 
+This module takes two providers: `aws` and `aws.failover`. If you are creating
+a failover website bucket with replication then the providers should be
+configured for two different regions. If you are not using that feature
+(`cloudfront_enabled = false` and `website_failover_enabled = false`) then you
+should specify the same provider for both.
+
 ## Security
 
 An attempt is made to restrict direct access to the web S3 buckets by using
