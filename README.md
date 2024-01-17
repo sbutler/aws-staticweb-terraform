@@ -177,6 +177,7 @@ The terraform configuration outputs several values for you to use.
 
 | Value             | Description |
 | ----------------- | ----------- |
+| cloudfront        | CloudFront distribution information: id, arn, domain_name, and hosted_zone_id. This value is null if no CloudFront distribution was created. |
 | cloudfront_domain | Domain name of your static website. You can create a CNAME to this in DNS to use custom domains (if configured in `cloudfront_domains`). If you need to create A or AAAA records then you will have to use AWS Route53 with aliases to this domain. |
 | website           | The main bucket information: bucket, endpoint, regional_domain_name. |
-| website_failover  | The failover bucket information: bucket, endpoint, regional_domain_name. These values are null if no failover site was created. |
+| website_failover  | The failover bucket information: bucket, endpoint, regional_domain_name. This value is null if no failover site was created. |
