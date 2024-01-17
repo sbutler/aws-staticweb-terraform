@@ -82,7 +82,7 @@ module "website_failover" {
 resource "aws_iam_role" "website_replication" {
     count = var.cloudfront_enabled ? 1 : 0
 
-    name_prefix = "${local.name_prefix}web-"
+    name_prefix = "${substr(local.name_prefix, 0, 34)}web-"
     description = "Role for replication to the ${var.project} failover bucket."
 
     assume_role_policy = data.aws_iam_policy_document.assume_s3.json
