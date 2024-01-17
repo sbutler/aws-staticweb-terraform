@@ -49,7 +49,8 @@ data "aws_iam_policy_document" "website_replication" {
 # =========================================================
 
 locals {
-    website_failover_bucket = "${local.name_prefix}web-failover${local.website_bucket_suffix}"
+    website_failover_bucket  = "${local.name_prefix}web-failover${local.website_bucket_suffix}"
+    website_failover_enabled = var.cloudfront_enabled ? true : coalesce(var.website_failover_enabled, false)
 }
 
 # =========================================================
@@ -57,7 +58,7 @@ locals {
 # =========================================================
 
 module "website_failover" {
-    count     = var.cloudfront_enabled ? 1 : 0
+    count     = local.website_failover_enabled ? 1 : 0
     source    = "./modules/website-bucket"
     providers = {
         aws = aws.failover
@@ -80,7 +81,7 @@ module "website_failover" {
 # =========================================================
 
 resource "aws_iam_role" "website_replication" {
-    count = var.cloudfront_enabled ? 1 : 0
+    count = local.website_failover_enabled ? 1 : 0
 
     name_prefix = "${substr(local.name_prefix, 0, 34)}web-"
     description = "Role for replication to the ${var.project} failover bucket."
@@ -89,7 +90,7 @@ resource "aws_iam_role" "website_replication" {
 }
 
 resource "aws_iam_role_policy" "website_replication" {
-    count = var.cloudfront_enabled ? 1 : 0
+    count = local.website_failover_enabled ? 1 : 0
 
     name = "replication"
 
@@ -98,7 +99,7 @@ resource "aws_iam_role_policy" "website_replication" {
 }
 
 resource "time_sleep" "waitfor_website_replication_role" {
-    count = var.cloudfront_enabled ? 1 : 0
+    count = local.website_failover_enabled ? 1 : 0
 
     create_duration = "10s"
 
@@ -113,7 +114,7 @@ resource "time_sleep" "waitfor_website_replication_role" {
 # =========================================================
 
 resource "aws_s3_bucket_replication_configuration" "website_replication" {
-    count      = var.cloudfront_enabled ? 1 : 0
+    count      = local.website_failover_enabled ? 1 : 0
     depends_on = [
         time_sleep.waitfor_website_replication_role,
     ]

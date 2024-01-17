@@ -95,6 +95,12 @@ variable "website_error_contact" {
     default     = "consult@illinois.edu"
 }
 
+variable "website_failover_enabled" {
+    type        = bool
+    description = "Enable the failover bucket and replication. If cloudfront_enabled is true then this will be ignored."
+    default     = null
+}
+
 variable "website_failover_logs_prefix" {
     type        = string
     description = "Prefix to use for object keys for S3 logs of the failover bucket."

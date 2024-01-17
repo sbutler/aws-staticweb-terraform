@@ -79,7 +79,7 @@ These variables are standard ones required by Technology Services.
 | ------------------- | ---------- | ------------ | ----------- |
 | data_classification | `"Public"` | `"Internal"` | Illini Secure data classification for data stored on the resources. Since no attempt is made to restrict the web bucket you should not use anything other than "Public" here. |
 | **project**         |            | `"example"   | Short, simple (letters, numbers, hyphen, underscore) project name that will be used as the prefix for all named resources. |
-| name_prefix         | `null`     | `"example-"` | Short, simple (letters, numbers, hyphen, underscore) project name that will be used as a prefix for resource names. Defaults to '$project-'. |
+| name_prefix         | `null`     | `"example-"` | Short, simple (letters, numbers, hyphen, underscore) project name that will be used as a prefix for resource names. Defaults to `"${var.project}-"` |
 | mimetypes           | `{}`       | See example  | Map of file extensions to their mime-types. This is merged with the default included list. |
 
 #### mimetypes
@@ -110,8 +110,9 @@ These variables change how the website behaves.
 | website_error_headers        | (varies)                 |                          | This is a map of HTTP Status Code to text to display in the header element of the error page. You can override individual header texts by changing this variable. |
 | website_error_messages       | (varies)                 |                          | This is a map of HTTP Status Code to text to display in the message element of the error page. Full HTML is allowed here. You can override individual message texts by changing this variable. |
 | website_error_contact        | `"consult@illinois.edu"` | `"example@illinois.edu"` | Email address to list as the contact on error pages. |
+| website_failover_enabled     | `null`                   | `true`                   | Enable the failover bucket and replication. If `cloudfront_enabled` is true then this will be ignored. |
 | website_failover_logs_prefix | `"s3/"`                  | `"example/s3/"`          | Prefix to use when storing S3 logs for the failover bucket in a logging bucket **(must end in a "/")**. You can use the same logging bucket for multiple services by changing this prefix. |
-| website_objects              | {}                       | See example              | Map of objects to sync to the website main bucket. This must be a value suitable for for_each (known at plan time). |
+| website_objects              | {}                       | See example              | Map of objects to sync to the website main bucket. This must be a value suitable for `for_each` (known at plan time). |
 | website_noncurrent_expire    | `0`                      | `7`                      | Number of days before expiring non-current versions of objects. Set to 0 to not expire. |
 
 #### website_objects

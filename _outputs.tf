@@ -11,13 +11,9 @@ output "website" {
 }
 
 output "website_failover" {
-    value = var.cloudfront_enabled ? {
+    value = local.website_failover_enabled ? {
         bucket               = module.website_failover[0].bucket
         endpoint             = module.website_failover[0].website_endpoint
         regional_domain_name = module.website_failover[0].bucket_regional_domain_name
-    } : {
-        bucket               = null
-        endpoint             = null
-        regional_domain_name = null
-    }
+    } : null
 }
