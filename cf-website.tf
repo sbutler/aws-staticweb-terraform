@@ -34,7 +34,7 @@ resource "aws_cloudfront_distribution" "website" {
         cloudfront_default_certificate = var.cloudfront_certificate_arn == null ? true : false
 
         minimum_protocol_version = var.cloudfront_certificate_arn == null ? null : "TLSv1.2_2021"
-        ssl_support_method       = "sni-only"
+        ssl_support_method       = var.cloudfront_certificate_arn == null ? null : "sni-only"
     }
 
     restrictions {
