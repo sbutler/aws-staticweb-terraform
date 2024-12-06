@@ -3,15 +3,6 @@
 # =========================================================
 
 locals {
-    website_error_pngs = [
-        "logo.png",
-        "logo@2x.png",
-        "logo@3x.png",
-        "wordmark.png",
-        "wordmark@2x.png",
-        "wordmark@3x.png",
-    ]
-
     website_error_code_defaults = {
         "400" = {
             header  = "Bad Request"
@@ -80,6 +71,18 @@ locals {
                     length(var.cloudfront_domains) > 0 ? var.cloudfront_domains[0] : null,
                     "University of Illinois"
                 )
+                site_name    = coalesce(
+                    var.website_error_site_name,
+                    var.cloudfront_enabled && length(var.cloudfront_domains) > 0 ? var.cloudfront_domains[0] : null,
+                    var.cloudfront_enabled ? aws_cloudfront_distribution.website[0].domain_name : null,
+                    local.website_bucket
+                )
+                site_url     = coalesce(
+                    var.website_error_site_url,
+                    var.cloudfront_enabled && length(var.cloudfront_domains) > 0 ? "https://${var.cloudfront_domains[0]}" : null,
+                    var.cloudfront_enabled ? "https://${aws_cloudfront_distribution.website[0].domain_name}" : null,
+                    "http://${module.website.website_endpoint}"
+                )
                 contact      = var.website_error_contact
             }
         )
@@ -139,22 +142,6 @@ resource "aws_s3_object" "website_favicon" {
     etag   = filemd5("${path.module}/files/favicon.ico")
 
     content_type  = "image/x-icon"
-    cache_control = "public, max-age=604800"
-}
-
-resource "aws_s3_object" "website_error_png" {
-    for_each   = toset(local.website_error_pngs)
-    depends_on = [
-        aws_s3_bucket_replication_configuration.website_replication,
-    ]
-
-    bucket = module.website.bucket
-    key    = ".error/${each.key}"
-
-    source = "${path.module}/files/${each.key}"
-    etag   = filemd5("${path.module}/files/${each.key}")
-
-    content_type  = "image/png"
     cache_control = "public, max-age=604800"
 }
 

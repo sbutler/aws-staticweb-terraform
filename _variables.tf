@@ -77,6 +77,18 @@ variable "website_error_department" {
     default     = null
 }
 
+variable "website_error_site_name" {
+    type        = string
+    description = "Site name to use on error pages."
+    default     = null
+}
+
+variable "website_error_site_url" {
+    type        = string
+    description = "Site URL to use on error pages."
+    default     = null
+}
+
 variable "website_error_headers" {
     type        = map(string)
     description = "Map of HTTP Status Codes to error page header strings."

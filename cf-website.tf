@@ -120,7 +120,7 @@ resource "aws_cloudfront_distribution" "website" {
     }
 
     dynamic "custom_error_response" {
-        for_each = local.website_error_codes
+        for_each = local.website_error_code_defaults
         content {
             error_code            = tonumber(custom_error_response.key)
             response_code         = tonumber(custom_error_response.key)

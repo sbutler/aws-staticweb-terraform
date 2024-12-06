@@ -5,81 +5,48 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>${status_code}: ${header_text} - University of Illinois</title>
-    <link rel="stylesheet" href="https://cdn.toolkit.illinois.edu/2/toolkit.css">
-    <style type="text/css">
-        html, body {
-            margin: 0px;
-            padding: 0px;
-        }
+    <link rel="shortcut icon" href="https://cdn.brand.illinois.edu/favicon.ico">
 
+    <link rel="stylesheet" href="https://cdn.brand.illinois.edu/components/il-header.css">
+    <link rel="stylesheet" href="https://cdn.brand.illinois.edu/components/il-footer.css">
+    <link rel="stylesheet" href="//cdn.toolkit.illinois.edu/3/toolkit.css">
+    <style type="text/css">
         body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            margin: 0;
         }
 
         #main {
-            margin-bottom: 3em;
-            padding: 0 var(--il-content-margin);
-
-            color: #555;
-            font-size: 1.5em;
-        }
-
-        #main h2 {
-            margin-top: 20px;
-            margin-bottom: 20px;
-
-            color: #E84A27;
-            font-size: 2em;
-            font-family: Helvetica, Arial, sans-serif;
-        }
-
-        #main pre {
-            white-space: pre-wrap;       /* css-3 */
-            white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-            white-space: -pre-wrap;      /* Opera 4-6 */
-            white-space: -o-pre-wrap;    /* Opera 7 */
-            word-wrap: break-word;       /* Internet Explorer 5.5+ */
-        }
-
-        #footer {
-            margin-top: auto;
+            margin-bottom: 50px;
         }
     </style>
 
-    <script src="https://cdn.toolkit.illinois.edu/2/toolkit.js"></script>
+    <script src="https://cdn.brand.illinois.edu/components/il-header.mjs" type="module" async></script>
+    <script src="https://cdn.brand.illinois.edu/components/il-footer.mjs" type="module" async></script>
+    <script type="module" src="//cdn.toolkit.illinois.edu/3/toolkit.js"></script>
 
     <link rev="made" href="mailto:${contact}">
+
+    <title>${status_code}: ${header_text} - University of Illinois</title>
 </head>
-<body><il-page>
-    <header role="banner" slot="header">
-        <il-header>
-            <div slot="wordmark">
-                <il-unit-wordmark>
-                        <h1>${department}</h1>
-                </il-unit-wordmark>
-              </div>
-        </il-header>
-    </header>
+<body><ilw-page class="ilw-font">
+    <il-header slot="header">
+        <div slot="primary-unit">${department}</div>
+        <a slot="site-name" href="${site_url}">${site_name}</a>
+    </il-header>
 
     <main id="main" role="main">
-        <il-section class="il-fixed-width il-formatted">
-            <h2>${status_code}: ${header_text}</h2>
+        <ilw-content width="page">
+            <h1>${status_code}: ${header_text}</h1>
             <section id="message">
                 ${message_text}
             </section>
-        </il-section>
+        </ilw-content>
     </main>
 
-    <footer id="footer" role="footer" slot="footer">
-        <il-footer>
-            <div slot="contact" class="il-footer-contact">
-                <p>${department}</p>
-                <p>Email: <a href="mailto:${contact}">Webmaster</a></p>
-            </div>
-        </il-footer>
-    </footer>
-</il-page></body>
+    <il-footer slot="footer">
+        <div slot="actions">
+            <a href="mailto:${contact}">Email Webmaster</a>
+        </div>
+    </il-footer>
+</ilw-page></body>
 </html>
